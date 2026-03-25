@@ -1,7 +1,10 @@
 Date,Nom,Temps,État,Description
-"18/03/2026","Initial commit","[1]","[DONE]","Initial commit"
+
 "18/03/2026","Maquette","[55]","[DONE]","Maquette de l'application"
 "18/03/2026","Creation de Get_commit","[55]","[DONE]","Creation du script Get_commit.sh pour récupérer les commits pour faire le journal de travail"
+"18/03/2026","Initial commit","[1]","[DONE]","Initial commit"
 
 "25/03/2026","Feat(Home): Creation de la page principal","[40]","[DONE]","Feat(Home): Creation de la page principal  - Page principale - Menu de navigation"
 "25/03/2026","Doc(JNR): Créeation du journal de travail","[3]","[DONE]","Doc(JNR): Créeation du journal de travail  mise en place du scripte Get_commit.sh"
+"25/03/2026","Feat(API): Featch api","[55]","[DONE]","Feat(API): Featch api  Affichage des livre sur la home page"
+"25/03/2026","Feat(API): Featch api","[20]","[DONE]","FIX(Get_Commit): Correction du script Get_commit.sh pour récupérer les commits de la branche main et aussi les tache écrit dans le csv"

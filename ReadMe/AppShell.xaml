@@ -5,7 +5,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:ReadMe"
     Shell.FlyoutBehavior="Disabled"
-    Title="ReadMe">
+    Title="ReadMe"
+    
+    Shell.BackgroundColor="#6A44A3"          
+    Shell.TitleColor="#ffffff"               
+
+    Shell.TabBarBackgroundColor="#6A44A3"    
+    Shell.TabBarTitleColor="#ffffff"         
+    Shell.TabBarUnselectedColor="#ffffff">
 
     <TabBar>
         <ShellContent

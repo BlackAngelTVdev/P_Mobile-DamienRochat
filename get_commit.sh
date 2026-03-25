@@ -19,7 +19,14 @@ echo "🚀 Extraction en mode append..."
 # 1. Récupérer la dernière date du CSV existant
 LAST_DATE=""
 if [ -f "$OUTPUT_FILE" ]; then
-    LAST_DATE=$(tail -n 1 "$OUTPUT_FILE" 2>/dev/null | cut -d',' -f1 | tr -d '"')
+    LAST_DATE=$(awk -F',' 'NF && $1 !~ /^Date$/ {
+        date = $1
+        gsub(/^"|"$/, "", date)
+        gsub(/^ +| +$/, "", date)
+        if (date != "") {
+            last_date = date
+        }
+    } END { print last_date }' "$OUTPUT_FILE" 2>/dev/null)
     echo "ℹ️ Fichier existant trouvé. Dernière date enregistrée: $LAST_DATE"
 else
     # Créer l'en-tête si le fichier n'existe pas
@@ -27,16 +34,34 @@ else
     echo "✅ Nouveau fichier CSV créé"
 fi
  
-# Utiliser la dernière date comme point de départ, ou SINCE si elle est antérieure
+# Utiliser la dernière date comme point de départ, convertie en format ISO pour git --since
 if [ -n "$LAST_DATE" ]; then
-    SINCE="$LAST_DATE"
+    if [[ "$LAST_DATE" =~ ^([0-9]{2})/([0-9]{2})/([0-9]{4})$ ]]; then
+        day="${BASH_REMATCH[1]}"
+        month="${BASH_REMATCH[2]}"
+        year="${BASH_REMATCH[3]}"
+        SINCE="$year-$month-$day 00:00:00"
+    else
+        # Fallback: garder la valeur brute si le format n'est pas celui attendu
+        SINCE="$LAST_DATE"
+    fi
 else
     SINCE="2026-01-13"
 fi
  
 # 2. Git log avec séparateurs spéciaux
 # Créer une liste des (Date, Nom) existants pour éviter les doublons
-EXISTING_ENTRIES=$(awk -F',' 'NR>1 {print $1"|"$2}' "$OUTPUT_FILE" 2>/dev/null)
+EXISTING_ENTRIES=$(awk -F',' 'NR>1 {
+    date = $1
+    nom = $2
+    gsub(/^"|"$/, "", date)
+    gsub(/^"|"$/, "", nom)
+    gsub(/^ +| +$/, "", date)
+    gsub(/^ +| +$/, "", nom)
+    if (date != "" && nom != "") {
+        print date "|" nom
+    }
+}' "$OUTPUT_FILE" 2>/dev/null)
 
 git log --all --since="$SINCE" --reverse --date=format:'%d/%m/%Y' --pretty=format:%ad%x1f%s%x1f%b%x1e \
 | awk -v RS='\036' -F '\037' -v EXISTING="$EXISTING_ENTRIES" '
@@ -85,8 +110,8 @@ NF {
     gsub(/^ +| +$/, "", nom_commit);
     gsub(/^ +| +$/, "", full_text);
     
-    # VÉRIFIER LES DOUBLONS
-    entry_key = current_date "|\"" nom_commit "\"";
+    # VÉRIFIER LES DOUBLONS (clé normalisée: Date|Nom)
+    entry_key = current_date "|" nom_commit;
     if (entry_key in existing) {
         next;
     }
@@ -99,6 +124,7 @@ NF {
  
     # ÉCRITURE DE LA LIGNE (append)
     printf "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n", current_date, nom_commit, temps, etat, full_text >> "'$OUTPUT_FILE'";
+    existing[entry_key] = 1;
 }
 '
  
