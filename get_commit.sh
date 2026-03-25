@@ -1,4 +1,10 @@
 #!/bin/bash
+# 
+# Mode APPEND: Ce script fonctionne en mode ajout, pas remplacement
+# - Le CSV est complété avec les nouveaux commits uniquement (pas recréé)
+# - Les modifications manuelles dans le CSV sont préservées
+# - L'Excel est régénéré à partir du CSV pour cohérence
+# - Si tu as fait des mods manuelles dans l'Excel, ajoute-les aussi au CSV pour les préserver
  
 # Config
 SINCE="2026-01-13"
@@ -8,14 +14,39 @@ OUTPUT_XLSX="$OUTPUT_DIR/journal_de_travail.xlsx"
  
 mkdir -p "$OUTPUT_DIR"
  
-echo "🚀 Extraction propre en cours..."
+echo "🚀 Extraction en mode append..."
  
-# 1. On écrit l'en-tête
-echo "Date,Nom,Temps,État,Description" > "$OUTPUT_FILE"
+# 1. Récupérer la dernière date du CSV existant
+LAST_DATE=""
+if [ -f "$OUTPUT_FILE" ]; then
+    LAST_DATE=$(tail -n 1 "$OUTPUT_FILE" 2>/dev/null | cut -d',' -f1 | tr -d '"')
+    echo "ℹ️ Fichier existant trouvé. Dernière date enregistrée: $LAST_DATE"
+else
+    # Créer l'en-tête si le fichier n'existe pas
+    echo "Date,Nom,Temps,État,Description" > "$OUTPUT_FILE"
+    echo "✅ Nouveau fichier CSV créé"
+fi
+ 
+# Utiliser la dernière date comme point de départ, ou SINCE si elle est antérieure
+if [ -n "$LAST_DATE" ]; then
+    SINCE="$LAST_DATE"
+else
+    SINCE="2026-01-13"
+fi
  
 # 2. Git log avec séparateurs spéciaux
+# Créer une liste des (Date, Nom) existants pour éviter les doublons
+EXISTING_ENTRIES=$(awk -F',' 'NR>1 {print $1"|"$2}' "$OUTPUT_FILE" 2>/dev/null)
+
 git log --all --since="$SINCE" --reverse --date=format:'%d/%m/%Y' --pretty=format:%ad%x1f%s%x1f%b%x1e \
-| awk -v RS='\036' -F '\037' '
+| awk -v RS='\036' -F '\037' -v EXISTING="$EXISTING_ENTRIES" '
+BEGIN {
+    # Charger les entrées existantes dans un tableau
+    split(EXISTING, existing_arr, "\n")
+    for (i in existing_arr) {
+        existing[existing_arr[i]] = 1
+    }
+}
 NF {
     current_date = $1;
     nom_commit = $2;
@@ -53,6 +84,12 @@ NF {
     # On enlève les espaces en trop au début et à la fin
     gsub(/^ +| +$/, "", nom_commit);
     gsub(/^ +| +$/, "", full_text);
+    
+    # VÉRIFIER LES DOUBLONS
+    entry_key = current_date "|\"" nom_commit "\"";
+    if (entry_key in existing) {
+        next;
+    }
  
     # SÉPARATION DES JOURS
     if (last_date != "" && last_date != current_date) {
@@ -60,7 +97,7 @@ NF {
     }
     last_date = current_date;
  
-    # ÉCRITURE DE LA LIGNE (Une seule fois, bien proprement)
+    # ÉCRITURE DE LA LIGNE (append)
     printf "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n", current_date, nom_commit, temps, etat, full_text >> "'$OUTPUT_FILE'";
 }
 '
@@ -89,7 +126,7 @@ src = os.environ["OUTPUT_FILE"]
 dst = os.environ["OUTPUT_XLSX"]
 
 try:
-    from openpyxl import Workbook
+    from openpyxl import Workbook, load_workbook
     from openpyxl.chart import BarChart, LineChart, Reference
     from openpyxl.styles import Alignment, Font, PatternFill
 except Exception:
@@ -131,9 +168,28 @@ def to_hhmm(total_minutes):
     return f"{hours}h{minutes:02d}"
 
 
-wb = Workbook()
-ws = wb.active
-ws.title = "Journal"
+# Vérifier si on doit créer un nouvel Excel ou mettre à jour l'existant
+excel_exists = os.path.exists(dst)
+
+if excel_exists:
+    # Mode APPEND: charger l'Excel existant
+    try:
+        wb = load_workbook(dst)
+        ws = wb.active
+        ws2 = wb["Tableau de bord"] if "Tableau de bord" in wb.sheetnames else None
+        print(f"APPEND_MODE=true")
+    except Exception as e:
+        # Si le fichier existe mais est corrompu, le recréer
+        excel_exists = False
+        print(f"EXCEL_CORRUPTED={e}")
+
+if not excel_exists:
+    # Mode CREATE: créer un nouvel Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Journal"
+    ws2 = None
+    print(f"CREATE_MODE=true")
 
 rows = []
 
@@ -143,20 +199,21 @@ with open(src, newline="", encoding="utf-8") as f:
             continue
         rows.append(row)
 
-header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
-day_fill = PatternFill(start_color="2E75B6", end_color="2E75B6", fill_type="solid")
-row_fill = PatternFill(start_color="EEF5FC", end_color="EEF5FC", fill_type="solid")
+# Si on est en mode CREATE, ajouter le header
+if not excel_exists:
+    header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+    
+    if rows:
+        ws.append(rows[0])
+    else:
+        ws.append(["Date", "Nom", "Temps", "Etat", "Description"])
 
-if rows:
-    ws.append(rows[0])
-else:
-    ws.append(["Date", "Nom", "Temps", "Etat", "Description"])
+    for cell in ws[1]:
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal="center")
 
-for cell in ws[1]:
-    cell.font = Font(bold=True, color="FFFFFF")
-    cell.fill = header_fill
-    cell.alignment = Alignment(horizontal="center")
-
+# Construire la structure des données par jour
 grouped_rows = defaultdict(list)
 day_order = []
 
@@ -173,6 +230,17 @@ for row in rows[1:]:
 
     grouped_rows[date_label].append(row)
 
+# Stylesd'affichage
+header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+day_fill = PatternFill(start_color="2E75B6", end_color="2E75B6", fill_type="solid")
+row_fill = PatternFill(start_color="EEF5FC", end_color="EEF5FC", fill_type="solid")
+
+if excel_exists and ws.max_row > 1:
+    # Mode APPEND: on regénère tout mais on garde le format
+    # Effacer les données (garder le header)
+    ws.delete_rows(2, ws.max_row - 1)
+
+# Remplir les données
 for day in day_order:
     ws.append([day, "", "", "", ""])
     day_row_idx = ws.max_row
@@ -223,7 +291,11 @@ for row in rows[1:]:
     minutes = parse_minutes(row[2])
     daily[date_label]["minutes"] += minutes
 
-ws2 = wb.create_sheet("Tableau de bord")
+# Créer ou mettre à jour le tableau de bord
+if ws2 is None:
+    ws2 = wb.create_sheet("Tableau de bord")
+
+ws2.delete_rows(1, ws2.max_row)
 ws2.append(["Date", "Total (min)", "Total (h)", "Total (h:min)"])
 
 sorted_days = sorted(
@@ -336,7 +408,13 @@ PYEOF
             echo "⚠️ Le fichier principal est verrouillé (probablement ouvert)."
             echo "✅ Excel généré avec un nom alternatif : $FALLBACK_FILE"
         else
-            echo "✅ Excel généré automatiquement : $OUTPUT_XLSX"
+            if grep -q '^APPEND_MODE=true' <<< "$PY_OUTPUT"; then
+                echo "♻️ Excel mis à jour (mode append) : $OUTPUT_XLSX"
+            elif grep -q '^CREATE_MODE=true' <<< "$PY_OUTPUT"; then
+                echo "✅ Nouvel Excel généré  : $OUTPUT_XLSX"
+            else
+                echo "✅ Excel généré : $OUTPUT_XLSX"
+            fi
         fi
     elif [ $PY_STATUS -eq 2 ]; then
         echo "⚠️ Impossible de générer l'Excel automatiquement (module python 'openpyxl' manquant)."

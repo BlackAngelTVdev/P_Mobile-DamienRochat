@@ -13,22 +13,10 @@
             ContentTemplate="{DataTemplate local:MainPage}"
             Route="MainPage" />
 
-        <!--<ShellContent
-            Title="Favoris"
-            Icon="dotnet_bot.png"
-            ContentTemplate="{DataTemplate local:FavoritesPage}"
-            Route="FavoritesPage" />-->
-
         <ShellContent
             Title="Ajouter"
             ContentTemplate="{DataTemplate local:AddBookPage}"
             Route="AddBookPage" />
-
-        <!--<ShellContent
-            Title="Bibliotheque"
-            Icon="dotnet_bot.png"
-            ContentTemplate="{DataTemplate local:LibraryPage}"
-            Route="LibraryPage" />-->
 
         <ShellContent
             Title="Parametres"
