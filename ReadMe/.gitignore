@@ -1,0 +1,44 @@
+# MAUI / .NET
+bin/
+obj/
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+.idea/
+
+# Output folders
+out/
+dist/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Rider
+.rider/
+.idea/
+
+# VS Code
+.vscode/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+
+# Environment variables
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+*.swp
+*.swo
+*~

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ReadMe.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:ReadMe"
+    Shell.FlyoutBehavior="Disabled"
+    Title="ReadMe">
+
+    <TabBar>
+        <ShellContent
+            Title="Accueil"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage" />
+
+        <!--<ShellContent
+            Title="Favoris"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate local:FavoritesPage}"
+            Route="FavoritesPage" />-->
+
+        <ShellContent
+            Title="Ajouter"
+            ContentTemplate="{DataTemplate local:AddBookPage}"
+            Route="AddBookPage" />
+
+        <!--<ShellContent
+            Title="Bibliotheque"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate local:LibraryPage}"
+            Route="LibraryPage" />-->
+
+        <ShellContent
+            Title="Parametres"
+            ContentTemplate="{DataTemplate local:SettingsPage}"
+            Route="SettingsPage" />
+    </TabBar>
+
+</Shell>

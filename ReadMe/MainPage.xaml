@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ReadMe.MainPage"
+             BackgroundColor="#EFE9F8">
+
+    <ScrollView VerticalScrollBarVisibility="Always">
+        <Grid Padding="14,16,14,24"
+              ColumnSpacing="12"
+              RowSpacing="14"
+              ColumnDefinitions="*,*,*"
+              RowDefinitions="Auto,Auto,Auto,Auto">
+
+            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="6">
+                <Border HeightRequest="160" BackgroundColor="#784FB3" StrokeThickness="0" StrokeShape="RoundRectangle 6" />
+                <Label Text="Le Petit Prince" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" TextColor="#1F1236" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="6">
+                <Border HeightRequest="160" BackgroundColor="#8E63CF" StrokeThickness="0" StrokeShape="RoundRectangle 6" />
+                <Label Text="Harry Potter 1" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" TextColor="#1F1236" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Row="0" Grid.Column="2" Spacing="6">
+                <Border HeightRequest="160" BackgroundColor="#C9BAE2" StrokeThickness="0" StrokeShape="RoundRectangle 6" />
+                <Label Text="Le Comte de Monte Cristo" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" TextColor="#1F1236" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="6">
+                <Border HeightRequest="160" BackgroundColor="#C8B9E0" StrokeThickness="0" StrokeShape="RoundRectangle 6" />
+                <Label Text="L Ile au tresor" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" TextColor="#1F1236" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="6">
+                <Border HeightRequest="160" BackgroundColor="#7D56BE" StrokeThickness="0" StrokeShape="RoundRectangle 6" />
+                <Label Text="Le Chat Botte" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" TextColor="#1F1236" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Row="1" Grid.Column="2" Spacing="6">
+                <Border HeightRequest="160" BackgroundColor="#5E349D" StrokeThickness="0" StrokeShape="RoundRectangle 6" />
+                <Label Text="Les Miserables" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" TextColor="#1F1236" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="6">
+                <Border HeightRequest="160" BackgroundColor="#6C43AB" StrokeThickness="0" StrokeShape="RoundRectangle 6" />
+                <Label Text="Vingt Mille Lieues" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" TextColor="#1F1236" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="6">
+                <Border HeightRequest="160" BackgroundColor="#9E79D5" StrokeThickness="0" StrokeShape="RoundRectangle 6" />
+                <Label Text="Le Hobbit" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" TextColor="#1F1236" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Row="2" Grid.Column="2" Spacing="6">
+                <Border HeightRequest="160" BackgroundColor="#BBA6DD" StrokeThickness="0" StrokeShape="RoundRectangle 6" />
+                <Label Text="L Etranger" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" TextColor="#1F1236" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Row="3" Grid.Column="0" Spacing="6">
+                <Border HeightRequest="160" BackgroundColor="#6B4AA5" StrokeThickness="0" StrokeShape="RoundRectangle 6" />
+                <Label Text="Dracula" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" TextColor="#1F1236" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Row="3" Grid.Column="1" Spacing="6">
+                <Border HeightRequest="160" BackgroundColor="#8A68C3" StrokeThickness="0" StrokeShape="RoundRectangle 6" />
+                <Label Text="Frankenstein" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" TextColor="#1F1236" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Row="3" Grid.Column="2" Spacing="6">
+                <Border HeightRequest="160" BackgroundColor="#C9BAE2" StrokeThickness="0" StrokeShape="RoundRectangle 6" />
+                <Label Text="Alice au pays des merveilles" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation" TextColor="#1F1236" />
+            </VerticalStackLayout>
+        </Grid>
+    </ScrollView>
+
+</ContentPage>
