@@ -8,12 +8,11 @@
 
     <ScrollView>
         <VerticalStackLayout Spacing="0">
-            <!-- Header Section -->
             <Grid HeightRequest="250" BackgroundColor="#6A44A3">
                 <Image Source="{Binding Book.Image}"
                        Aspect="AspectFill"
                        Opacity="0.6" />
-                
+
                 <VerticalStackLayout VerticalOptions="End" Padding="20" Spacing="5">
                     <Label Text="{Binding Book.Title}"
                            TextColor="White"
@@ -25,7 +24,6 @@
                 </VerticalStackLayout>
             </Grid>
 
-            <!-- Info Grid -->
             <Grid ColumnDefinitions="*,*,*" Padding="20" BackgroundColor="White">
                 <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
                     <Label Text="Pages" FontSize="12" TextColor="#5E4E7B" HorizontalOptions="Center" />
@@ -42,7 +40,6 @@
             </Grid>
 
             <VerticalStackLayout Padding="20" Spacing="15">
-                <!-- Resume -->
                 <Button Text="Voir le résumé (PDF)"
                         Clicked="OnViewPdfClicked"
                         BackgroundColor="#DCCCF0"
@@ -50,7 +47,6 @@
                         CornerRadius="10"
                         HeightRequest="45" />
 
-                <!-- Read Button -->
                 <Button Text="Lire le livre"
                         Clicked="OnReadClicked"
                         BackgroundColor="#6A44A3"
@@ -59,9 +55,8 @@
                         HeightRequest="50"
                         Margin="0,10" />
 
-                <!-- Comments Section -->
                 <Label Text="Commentaires" FontSize="18" FontAttributes="Bold" TextColor="#23163B" Margin="0,10,0,0" />
-                
+
                 <CollectionView ItemsSource="{Binding Book.Comments}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:BookComment">
@@ -75,39 +70,40 @@
                     </CollectionView.ItemTemplate>
                 </CollectionView>
 
-                <!-- Add Comment -->
                 <Label Text="Ajouter un avis" FontSize="16" FontAttributes="Bold" TextColor="#23163B" Margin="0,10,0,0" />
-                
-                <Entry x:Name="CommentEntry" Placeholder="Votre commentaire..." BackgroundColor="White" />
-                
-                <HorizontalStackLayout x:Name="StarRatingLayout" Spacing="4" Margin="0,10">
-                    <Label Text="★" FontSize="32" TextColor="#6A44A3">
+
+                <Entry x:Name="CommentEntry" 
+                       Placeholder="Votre commentaire..." 
+                       BackgroundColor="White"
+                       TextColor="Black" />
+
+                <HorizontalStackLayout x:Name="StarRatingLayout" HorizontalOptions="Center" Spacing="5">
+                    <Label Text="☆" FontSize="32" TextColor="#DCCCF0">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="1" />
                         </Label.GestureRecognizers>
                     </Label>
-                    <Label Text="★" FontSize="32" TextColor="#6A44A3">
+                    <Label Text="☆" FontSize="32" TextColor="#DCCCF0">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="2" />
                         </Label.GestureRecognizers>
                     </Label>
-                    <Label Text="★" FontSize="32" TextColor="#6A44A3">
+                    <Label Text="☆" FontSize="32" TextColor="#DCCCF0">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="3" />
                         </Label.GestureRecognizers>
                     </Label>
-                    <Label Text="★" FontSize="32" TextColor="#6A44A3">
+                    <Label Text="☆" FontSize="32" TextColor="#DCCCF0">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="4" />
                         </Label.GestureRecognizers>
                     </Label>
-                    <Label Text="★" FontSize="32" TextColor="#6A44A3">
+                    <Label Text="☆" FontSize="32" TextColor="#DCCCF0">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="5" />
                         </Label.GestureRecognizers>
                     </Label>
                 </HorizontalStackLayout>
-
 
                 <Button Text="Envoyer mon avis"
                         Clicked="OnSubmitReviewClicked"
@@ -116,7 +112,10 @@
                         CornerRadius="25"
                         HeightRequest="45" />
 
-                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#6A44A3" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                                   IsVisible="{Binding IsBusy}" 
+                                   Color="#6A44A3" 
+                                   HorizontalOptions="Center" />
             </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>

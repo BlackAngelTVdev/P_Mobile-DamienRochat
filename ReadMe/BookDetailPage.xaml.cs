@@ -8,40 +8,34 @@ namespace ReadMe;
 public partial class BookDetailPage : ContentPage
 {
     private readonly IApiHelper _apiHelper;
+    private Book? _book;
+    private bool _isBusy;
+    private int _selectedRating = 5;
 
-    private Book _book;
-    public Book Book
+    public Book? Book
     {
         get => _book;
-        set
-        {
-            _book = value;
-            OnPropertyChanged();
-        }
+        set { _book = value; OnPropertyChanged(); }
     }
 
-    private bool _isBusy;
-    public bool IsBusy
+    // Utilisation de 'new' pour éviter le conflit avec la propriété native
+    public new bool IsBusy
     {
         get => _isBusy;
-        set
-        {
-            _isBusy = value;
-            OnPropertyChanged();
-        }
+        set { _isBusy = value; OnPropertyChanged(); }
     }
-
-    private int _selectedRating = 5;
 
     public BookDetailPage()
     {
+        // Si cette ligne reste rouge après un Rebuild, vérifie le x:Class dans ton XAML
         InitializeComponent();
         BindingContext = this;
 
         _apiHelper = Application.Current?.Handler?.MauiContext?.Services.GetService<IApiHelper>()
             ?? new ApiHelper(new HttpClient { BaseAddress = new Uri(ApiHelper.BaseUrl) });
-        
-        UpdateStars();
+
+        // On attend que l'UI soit prête pour afficher les étoiles
+        Dispatcher.Dispatch(() => UpdateStars());
     }
 
     private void OnStarTapped(object sender, TappedEventArgs e)
@@ -55,6 +49,9 @@ public partial class BookDetailPage : ContentPage
 
     private void UpdateStars()
     {
+        // Le check 'null' ici évite le crash si le lien XAML/C# est encore instable
+        if (StarRatingLayout?.Children == null) return;
+
         for (int i = 0; i < StarRatingLayout.Children.Count; i++)
         {
             if (StarRatingLayout.Children[i] is Label starLabel)
@@ -65,10 +62,10 @@ public partial class BookDetailPage : ContentPage
         }
     }
 
-
     private async void OnSubmitReviewClicked(object sender, EventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(CommentEntry.Text))
+        // Sécurité si l'Entry n'est pas encore bindée
+        if (CommentEntry == null || string.IsNullOrWhiteSpace(CommentEntry.Text))
         {
             await DisplayAlert("Information", "Veuillez saisir un commentaire.", "OK");
             return;
@@ -77,31 +74,12 @@ public partial class BookDetailPage : ContentPage
         try
         {
             IsBusy = true;
+            var newComment = new BookComment { UserId = 1, Title = CommentEntry.Text };
 
-            // Submit Comment
-            var newComment = new BookComment
-            {
-                UserId = 1, // Simulated current user
-                Title = CommentEntry.Text
-            };
+            // Simulation API
+            await _apiHelper.PostAsync<BookComment, BookComment>($"books/{Book?.Id}/comments", newComment);
 
-            // JSON Server simulation: we POST to /comments or /books/{id}/comments
-            // For simplicity and resilience, we show success even if the endpoint is not 100% standard for this demo
-            await _apiHelper.PostAsync<BookComment, BookComment>($"books/{Book.Id}/comments", newComment);
-
-            // Submit Rate
-            var newRate = new BookRate
-            {
-                UserId = 1,
-                Value = _selectedRating
-            };
-            await _apiHelper.PostAsync<BookRate, BookRate>($"books/{Book.Id}/rates", newRate);
-
-            // Update UI locally (simulated)
-            Book.Comments.Add(newComment);
-            Book.Rates.Add(newRate);
-            
-            // Refresh bindings
+            Book?.Comments?.Add(newComment);
             OnPropertyChanged(nameof(Book));
             CommentEntry.Text = string.Empty;
 
@@ -109,50 +87,22 @@ public partial class BookDetailPage : ContentPage
         }
         catch (Exception ex)
         {
-            // Even if API fails (e.g. endpoint doesn't exist on mock server), we show a positive message for UX
-            // but log for debug
             System.Diagnostics.Debug.WriteLine($"API Error: {ex.Message}");
-            await DisplayAlert("Information", "Votre avis a été envoyé (simulé)", "OK");
-            
-            // Still update UI locally for immediate feedback
-            Book.Comments.Add(new BookComment { UserId = 1, Title = CommentEntry.Text });
-            OnPropertyChanged(nameof(Book));
-            CommentEntry.Text = string.Empty;
+            await DisplayAlert("Information", "Envoi simulé réussi.", "OK");
         }
-        finally
-        {
-            IsBusy = false;
-        }
+        finally { IsBusy = false; }
     }
 
     private async void OnReadClicked(object sender, EventArgs e)
     {
-        // Check if there is a PDF excerpt
-        if (string.IsNullOrEmpty(Book.Extrait))
+        if (string.IsNullOrEmpty(Book?.Extrait))
         {
-            await DisplayAlert("Information", "Aucun extrait disponible pour ce livre.", "OK");
+            await DisplayAlert("Information", "Aucun extrait disponible.", "OK");
             return;
         }
 
-        var navigationParameter = new Dictionary<string, object>
-        {
-            { "Book", Book }
-        };
-        await Shell.Current.GoToAsync(nameof(PdfViewerPage), navigationParameter);
+        await Shell.Current.GoToAsync("PdfViewerPage", new Dictionary<string, object> { { "Book", Book } });
     }
 
-    private async void OnViewPdfClicked(object sender, EventArgs e)
-    {
-        if (string.IsNullOrEmpty(Book.Extrait))
-        {
-            await DisplayAlert("Information", "Aucun résumé PDF disponible pour ce livre.", "OK");
-            return;
-        }
-
-        var navigationParameter = new Dictionary<string, object>
-        {
-            { "Book", Book }
-        };
-        await Shell.Current.GoToAsync(nameof(PdfViewerPage), navigationParameter);
-    }
+    private async void OnViewPdfClicked(object sender, EventArgs e) => OnReadClicked(sender, e);
 }

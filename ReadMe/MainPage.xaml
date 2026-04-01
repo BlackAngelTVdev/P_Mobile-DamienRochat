@@ -1,24 +1,43 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:ReadMe.Models"
              x:Class="ReadMe.MainPage"
              Title="Accueil"
              BackgroundColor="#EFE9F8">
 
-    <RefreshView IsRefreshing="{Binding IsRefreshing}" Refreshing="OnRefreshing">
-        <Grid RowDefinitions="Auto,Auto,*" Padding="16,16,16,10">
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" 
+                 Refreshing="OnRefreshing"
+                 RefreshColor="#6B43AB">
 
+        <Grid RowDefinitions="Auto,Auto,*" Padding="16,16,16,10">
 
             <CollectionView Grid.Row="2"
                             ItemsSource="{Binding Books}"
                             SelectionMode="Single"
                             SelectionChanged="OnSelectionChanged"
-                            EmptyView="Aucun livre trouve.">
+                            EmptyView="Aucun livre trouvé.">
+
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid RowDefinitions="Auto,Auto"
-                              ColumnDefinitions="86,*"
-                              Padding="0,8">
+                    <DataTemplate x:DataType="models:Book">
+                        <Grid RowDefinitions="Auto,Auto" 
+                              ColumnDefinitions="86,*" 
+                              Padding="0,8"
+                              BackgroundColor="Transparent">
+
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroupList>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal" />
+                                        <VisualState x:Name="Selected">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateGroupList>
+                            </VisualStateManager.VisualStateGroups>
+
                             <Border Grid.Row="0"
                                     Grid.Column="0"
                                     HeightRequest="122"
@@ -26,13 +45,16 @@
                                     BackgroundColor="#DCCCF0"
                                     StrokeThickness="0"
                                     StrokeShape="RoundRectangle 8">
-                                <Image Source="{Binding Image}" Aspect="AspectFill" />
+                                <Image Source="{Binding Image}" 
+                                       Aspect="AspectFill" />
                             </Border>
 
                             <VerticalStackLayout Grid.Row="0"
                                                  Grid.Column="1"
                                                  Spacing="4"
-                                                 Padding="10,0,0,0">
+                                                 Padding="10,0,0,0"
+                                                 VerticalOptions="Center">
+
                                 <Label Text="{Binding Title}"
                                        FontSize="17"
                                        FontAttributes="Bold"
@@ -44,19 +66,15 @@
                                        TextColor="#5E4E7B"
                                        LineBreakMode="TailTruncation" />
 
-                                <Label Text="{Binding ExtraLine}"
-                                       FontSize="12"
-                                       TextColor="#5E4E7B"
-                                       LineBreakMode="TailTruncation" />
-
                                 <Label Text="{Binding ScoreLine}"
                                        FontSize="12"
                                        TextColor="#6A44A3"
-                                       LineBreakMode="TailTruncation" />
+                                       FontAttributes="Bold" />
 
-                                <Label Text="{Binding CommentsCount, StringFormat='Commentaires: {0}'}"
-                                       FontSize="12"
-                                       TextColor="#6A44A3" />
+                                <Label Text="{Binding CommentsCount, StringFormat='{0} commentaires'}"
+                                       FontSize="11"
+                                       TextColor="#6A44A3"
+                                       Opacity="0.8" />
                             </VerticalStackLayout>
 
                             <BoxView Grid.Row="1"
@@ -78,5 +96,4 @@
                                Color="#6B43AB" />
         </Grid>
     </RefreshView>
-
 </ContentPage>
