@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ReadMe.EpubViewerPage"
+             Title="Lecture EPUB">
+
+    <Grid RowDefinitions="Auto,*">
+        <Grid Grid.Row="0" Padding="12,8" ColumnDefinitions="44,*,44" BackgroundColor="#F3ECFF">
+            <Button Grid.Column="0"
+                    Text="‹"
+                    Clicked="OnPrevClicked"
+                    FontSize="24"
+                    BackgroundColor="#6A44A3"
+                    TextColor="White"
+                    CornerRadius="20"
+                    WidthRequest="40"
+                    HeightRequest="40" />
+
+            <Label x:Name="PageIndicatorLabel"
+                   Grid.Column="1"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Center"
+                   FontSize="13"
+                   FontAttributes="Bold"
+                   TextColor="#4A3278"
+                   Text="Page 0 / 0" />
+
+            <Button Grid.Column="2"
+                    Text="›"
+                    Clicked="OnNextClicked"
+                    FontSize="24"
+                    BackgroundColor="#6A44A3"
+                    TextColor="White"
+                    CornerRadius="20"
+                    WidthRequest="40"
+                    HeightRequest="40" />
+        </Grid>
+
+        <CarouselView x:Name="ReaderCarousel"
+                      Grid.Row="1"
+                      ItemsSource="{Binding Pages}"
+                      PositionChanged="OnReaderPositionChanged"
+                      IsSwipeEnabled="True">
+            <CarouselView.ItemTemplate>
+                <DataTemplate>
+                    <ScrollView>
+                        <Label Text="{Binding Content}"
+                               Padding="20,16"
+                               LineBreakMode="WordWrap"
+                               FontSize="18"
+                               LineHeight="1.5"
+                               TextColor="#23163B" />
+                    </ScrollView>
+                </DataTemplate>
+            </CarouselView.ItemTemplate>
+        </CarouselView>
+
+        <Border x:Name="DownloadPanel"
+                IsVisible="False"
+                StrokeThickness="0"
+                BackgroundColor="#CC23163B"
+                Padding="12"
+                Margin="16"
+                VerticalOptions="End"
+                HorizontalOptions="Fill">
+            <VerticalStackLayout Spacing="8">
+                <Label x:Name="DownloadStatusLabel"
+                       Text="Preparation du telechargement..."
+                       FontSize="12"
+                       TextColor="White" />
+                <ProgressBar x:Name="DownloadProgressBar"
+                             Progress="0"
+                             ProgressColor="#9C7CD6"
+                             BackgroundColor="#4A3B66" />
+            </VerticalStackLayout>
+        </Border>
+
+        <ActivityIndicator x:Name="LoadingIndicator"
+                           IsRunning="True"
+                           IsVisible="True"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"
+                           Color="#6A44A3" />
+    </Grid>
+</ContentPage>

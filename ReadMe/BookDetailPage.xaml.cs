@@ -101,8 +101,29 @@ public partial class BookDetailPage : ContentPage
             return;
         }
 
-        await Shell.Current.GoToAsync("PdfViewerPage", new Dictionary<string, object> { { "Book", Book } });
+        var epubCandidateUrl = BuildEpubCandidate(Book.Extrait);
+
+        await Shell.Current.GoToAsync(nameof(EpubViewerPage), new Dictionary<string, object>
+        {
+            { "Book", Book },
+            { "EpubUrl", Uri.EscapeDataString(epubCandidateUrl) }
+        });
     }
 
-    private async void OnViewPdfClicked(object sender, EventArgs e) => OnReadClicked(sender, e);
+    private async void OnViewPdfClicked(object sender, EventArgs e)
+    {
+        if (string.IsNullOrEmpty(Book?.Extrait))
+        {
+            await DisplayAlert("Information", "Aucun extrait disponible.", "OK");
+            return;
+        }
+
+        await Shell.Current.GoToAsync(nameof(PdfViewerPage), new Dictionary<string, object> { { "Book", Book } });
+    }
+
+    private static string BuildEpubCandidate(string sourceUrl)
+    {
+        return sourceUrl.Replace("/pdf/", "/epub/", StringComparison.OrdinalIgnoreCase)
+            .Replace(".pdf", ".epub", StringComparison.OrdinalIgnoreCase);
+    }
 }

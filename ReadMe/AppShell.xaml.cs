@@ -9,6 +9,7 @@ namespace ReadMe
             Routing.RegisterRoute(nameof(BookDetailPage), typeof(BookDetailPage));
             Routing.RegisterRoute(nameof(BookReaderPage), typeof(BookReaderPage));
             Routing.RegisterRoute(nameof(PdfViewerPage), typeof(PdfViewerPage));
+            Routing.RegisterRoute(nameof(EpubViewerPage), typeof(EpubViewerPage));
         }
     }
 }
