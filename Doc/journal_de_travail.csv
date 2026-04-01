@@ -12,3 +12,6 @@ Date,Nom,Temps,État,Description
 "25/03/2026","Chor(Save): Save code on cloud","[7]","[DONE]","Chor(Save): Save code on cloud"
 
 "01/04/2026","FIX(Get_commit): ca ne fonctionnais pas chez mes camarades","[10]","[DONE]","il avait modif les dates et il ne faut surtout pas"
+"01/04/2026","Fix(Reload): Reload infini","[6]","[DONE]","Fix(Reload): Reload infini"
+"01/04/2026","Feat(detail): affiche les detail d'un livre avec le bouton pour lire","[15]","[DONE]","Feat(detail): affiche les detail d'un livre avec le bouton pour lire"
+"01/04/2026","Feat(Résumé): Ouvre le pdf de résumer","[40]","[DONE]","Feat(Résumé): Ouvre le pdf de résumer"
