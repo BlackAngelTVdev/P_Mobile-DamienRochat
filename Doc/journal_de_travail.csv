@@ -8,3 +8,7 @@ Date,Nom,Temps,État,Description
 "25/03/2026","Doc(JNR): Créeation du journal de travail","[3]","[DONE]","Doc(JNR): Créeation du journal de travail  mise en place du scripte Get_commit.sh"
 "25/03/2026","Feat(API): Featch api","[55]","[DONE]","Feat(API): Featch api  Affichage des livre sur la home page"
 "25/03/2026","Feat(API): Featch api","[20]","[DONE]","FIX(Get_Commit): Correction du script Get_commit.sh pour récupérer les commits de la branche main et aussi les tache écrit dans le csv"
+"25/03/2026","Fix(shell): color menu","[10]","[DONE]","Fix(shell): color menu"
+"25/03/2026","Chor(Save): Save code on cloud","[7]","[DONE]","Chor(Save): Save code on cloud"
+
+"01/04/2026","FIX(Get_commit): ca ne fonctionnais pas chez mes camarades","[10]","[DONE]","il avait modif les dates et il ne faut surtout pas"

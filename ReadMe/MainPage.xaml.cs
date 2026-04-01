@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using Microsoft.Extensions.DependencyInjection;
 using ReadMe.Helpers;
 using ReadMe.Models;
@@ -27,6 +27,7 @@ namespace ReadMe
         }
 
         private bool _isRefreshing;
+        private bool _isLoading;
 
         public MainPage()
         {
@@ -55,13 +56,14 @@ namespace ReadMe
 
         private async Task LoadBooksAsync()
         {
-            if (IsRefreshing)
+            if (_isLoading)
             {
                 return;
             }
 
             try
             {
+                _isLoading = true;
                 IsRefreshing = true;
                 var books = await _apiHelper.GetAsync<List<Book>>("books");
 
@@ -83,6 +85,7 @@ namespace ReadMe
             finally
             {
                 IsRefreshing = false;
+                _isLoading = false;
             }
         }
     }
