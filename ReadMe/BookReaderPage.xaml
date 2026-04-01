@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ReadMe.BookReaderPage"
+             Title="Lecture"
+             BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto, *">
+        <VerticalStackLayout Grid.Row="0" Padding="20" BackgroundColor="#F5F5F5">
+            <Label Text="{Binding Book.Title}"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="#23163B"
+                   HorizontalOptions="Center" />
+            <Label Text="Extrait"
+                   FontSize="12"
+                   TextColor="#5E4E7B"
+                   HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <ScrollView Grid.Row="1" Padding="25">
+            <Label Text="{Binding Book.Extrait}"
+                   FontSize="16"
+                   TextColor="#23163B"
+                   LineHeight="1.6"
+                   HorizontalOptions="Fill" />
+        </ScrollView>
+    </Grid>
+</ContentPage>

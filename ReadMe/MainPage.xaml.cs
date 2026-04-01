@@ -54,6 +54,27 @@ namespace ReadMe
             await LoadBooksAsync();
         }
 
+        private async void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.CurrentSelection.FirstOrDefault() is not Book selectedBook)
+            {
+                return;
+            }
+
+            var navigationParameter = new Dictionary<string, object>
+            {
+                { "Book", selectedBook }
+            };
+
+            await Shell.Current.GoToAsync(nameof(BookDetailPage), navigationParameter);
+
+            // Clear selection
+            if (sender is CollectionView collectionView)
+            {
+                collectionView.SelectedItem = null;
+            }
+        }
+
         private async Task LoadBooksAsync()
         {
             if (_isLoading)
