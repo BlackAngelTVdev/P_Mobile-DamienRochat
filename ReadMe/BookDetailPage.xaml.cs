@@ -50,12 +50,10 @@ public partial class BookDetailPage : ContentPage
             return;
         }
 
-        var epubUrl = new Uri(new Uri(ApiHelper.BaseUrl), $"book/{Book.Id}/file").ToString();
-
         await Shell.Current.GoToAsync(nameof(EpubViewerPage), new Dictionary<string, object>
         {
             { "Book", Book },
-            { "EpubUrl", Uri.EscapeDataString(epubUrl) }
+            { "EpubUrl", Uri.EscapeDataString(Book.EpubFileUrl) }
         });
     }
 

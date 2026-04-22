@@ -60,7 +60,7 @@ public partial class EpubViewerPage : ContentPage
 
         var sourceUrl = !string.IsNullOrWhiteSpace(EpubUrl)
             ? EpubUrl
-            : Book?.EpubFilePath;
+            : Book?.EpubFileUrl;
 
         if (string.IsNullOrWhiteSpace(sourceUrl))
         {
@@ -70,18 +70,17 @@ public partial class EpubViewerPage : ContentPage
             return;
         }
 
-        var resolvedEpubUrl = NormalizeUrl(sourceUrl);
-
-        if (_lastLoadedUrl == resolvedEpubUrl)
-        {
-            return;
-        }
-
         _isLoading = true;
         UpdateLoadingUi(true, "Preparation du telechargement...", 0);
 
         try
         {
+            var resolvedEpubUrl = NormalizeUrl(sourceUrl);
+            if (_lastLoadedUrl == resolvedEpubUrl)
+            {
+                return;
+            }
+
             Debug.WriteLine($"[EPUB] Start download: {resolvedEpubUrl}");
             var epubBytes = await DownloadEpubWithProgressAsync(resolvedEpubUrl);
             Debug.WriteLine($"[EPUB] Download complete: {epubBytes.Length} bytes");
@@ -110,7 +109,7 @@ public partial class EpubViewerPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"[EPUB] Reader failed: {ex}");
-            await DisplayAlert("Erreur lecture", "Impossible d'ouvrir ce fichier EPUB.", "OK");
+            await DisplayAlert("Erreur lecture", "Impossible d'ouvrir ce fichier EPUB depuis l'API. Le backend ne sert probablement pas encore le fichier.", "OK");
         }
         finally
         {

@@ -40,7 +40,11 @@ public class Book
 
     public string MetaLine => string.IsNullOrWhiteSpace(Author) ? "Auteur inconnu" : Author;
 
-    public string CoverImageUrl => ResolveUrl(CoverImagePath);
+    public string CoverImageUrl => string.Empty;
+
+    public string EpubFileUrl => Id > 0
+        ? new Uri(new Uri(ApiHelper.BaseUrl), $"book/{Id}/file").ToString()
+        : ResolveUrl(EpubFilePath);
 
     public string PublishDateText => PublishDate?.ToString("dd/MM/yyyy") ?? "Date inconnue";
 

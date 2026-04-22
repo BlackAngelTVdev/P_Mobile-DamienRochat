@@ -45,8 +45,14 @@
                                     BackgroundColor="#DCCCF0"
                                     StrokeThickness="0"
                                     StrokeShape="RoundRectangle 8">
-                                <Image Source="{Binding CoverImageUrl}"
-                                       Aspect="AspectFill" />
+                                <Grid>
+                                    <Label Text="EPUB"
+                                           TextColor="#6A44A3"
+                                           FontAttributes="Bold"
+                                           FontSize="16"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Grid>
                             </Border>
 
                             <VerticalStackLayout Grid.Row="0"
