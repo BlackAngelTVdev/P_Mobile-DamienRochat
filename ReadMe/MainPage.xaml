@@ -45,7 +45,7 @@
                                     BackgroundColor="#DCCCF0"
                                     StrokeThickness="0"
                                     StrokeShape="RoundRectangle 8">
-                                <Image Source="{Binding Image}" 
+                                <Image Source="{Binding CoverImageUrl}"
                                        Aspect="AspectFill" />
                             </Border>
 
@@ -66,15 +66,28 @@
                                        TextColor="#5E4E7B"
                                        LineBreakMode="TailTruncation" />
 
-                                <Label Text="{Binding ScoreLine}"
+                                    <Label Text="{Binding SecondaryLine}"
+                                        FontSize="12"
+                                        TextColor="#5E4E7B"
+                                        LineBreakMode="TailTruncation" />
+
+                                    <Label Text="{Binding DetailLine}"
                                        FontSize="12"
                                        TextColor="#6A44A3"
-                                       FontAttributes="Bold" />
+                                        FontAttributes="Bold"
+                                        LineBreakMode="TailTruncation" />
 
-                                <Label Text="{Binding CommentsCount, StringFormat='{0} commentaires'}"
+                                    <Label Text="{Binding UploadedLine}"
+                                        FontSize="11"
+                                        TextColor="#6A44A3"
+                                        Opacity="0.8" />
+
+                                    <Label Text="{Binding DescriptionLine}"
                                        FontSize="11"
                                        TextColor="#6A44A3"
-                                       Opacity="0.8" />
+                                        Opacity="0.8"
+                                        MaxLines="2"
+                                        LineBreakMode="TailTruncation" />
                             </VerticalStackLayout>
 
                             <BoxView Grid.Row="1"

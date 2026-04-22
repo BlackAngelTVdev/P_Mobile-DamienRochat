@@ -1,12 +1,12 @@
 using ReadMe.Models;
-using System.Web; // Nécessaire pour HttpUtility
+using System.Web; // Nï¿½cessaire pour HttpUtility
 
 namespace ReadMe;
 
 [QueryProperty(nameof(Book), "Book")]
 public partial class PdfViewerPage : ContentPage
 {
-    // Correction : Utilisation de nullable ? pour éviter l'erreur de constructeur
+    // Correction : Utilisation de nullable ? pour ï¿½viter l'erreur de constructeur
     private Book? _book;
     public Book? Book
     {
@@ -24,8 +24,8 @@ public partial class PdfViewerPage : ContentPage
         InitializeComponent();
         BindingContext = this;
 
-        // On vérifie si PdfWebView existe avant d'abonner l'événement
-        // (Évite les plantages si le XAML n'est pas encore bien généré)
+        // On vï¿½rifie si PdfWebView existe avant d'abonner l'ï¿½vï¿½nement
+        // (ï¿½vite les plantages si le XAML n'est pas encore bien gï¿½nï¿½rï¿½)
         if (PdfWebView != null)
         {
             PdfWebView.Navigated += (s, e) => {
@@ -40,10 +40,10 @@ public partial class PdfViewerPage : ContentPage
 
     private void LoadPdf()
     {
-        // ATTENTION : Remplacement de PdfUrl par Extrait selon ton modèle
-        if (Book != null && !string.IsNullOrEmpty(Book.Extrait))
+        // ATTENTION : ce viewer suit maintenant le champ EpubFilePath du modÃ¨le
+        if (Book != null && !string.IsNullOrEmpty(Book.EpubFilePath))
         {
-            string url = Book.Extrait;
+            string url = Book.EpubFilePath;
 
             if (DeviceInfo.Platform == DevicePlatform.Android)
             {

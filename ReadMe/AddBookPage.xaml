@@ -5,13 +5,55 @@
              Title="Ajouter"
              BackgroundColor="#EFE9F8">
 
-    <Grid Padding="20">
-        <Label Text="Page Ajouter un livre"
-               HorizontalOptions="Center"
-               VerticalOptions="Center"
-               FontSize="28"
-               FontAttributes="Bold"
-               TextColor="#2D2144" />
-    </Grid>
+    <ScrollView>
+     <VerticalStackLayout Padding="16" Spacing="12">
+         <Label Text="Ajouter un livre EPUB"
+             FontSize="24"
+             FontAttributes="Bold"
+             TextColor="#2D2144" />
+
+         <Entry x:Name="TitleEntry"
+             Placeholder="Titre"
+             BackgroundColor="White"
+             TextColor="#23163B" />
+
+         <Entry x:Name="AuthorEntry"
+             Placeholder="Auteur"
+             BackgroundColor="White"
+             TextColor="#23163B" />
+
+         <Editor x:Name="DescriptionEditor"
+              Placeholder="Description (optionnel)"
+              AutoSize="TextChanges"
+              HeightRequest="120"
+              BackgroundColor="White"
+              TextColor="#23163B" />
+
+         <Button Text="Choisir un fichier .epub"
+              Clicked="OnPickFileClicked"
+              BackgroundColor="#DCCCF0"
+              TextColor="#23163B"
+              CornerRadius="10"
+              HeightRequest="46" />
+
+         <Label x:Name="SelectedFileLabel"
+             Text="Aucun fichier sélectionné"
+             FontSize="12"
+             TextColor="#5E4E7B" />
+
+         <Button Text="Uploader"
+              Clicked="OnUploadClicked"
+              BackgroundColor="#6A44A3"
+              TextColor="White"
+              CornerRadius="10"
+              HeightRequest="46" />
+
+         <ActivityIndicator x:Name="BusyIndicator"
+                   IsVisible="False"
+                   IsRunning="False"
+                   Color="#6A44A3"
+                   HorizontalOptions="Center" />
+     </VerticalStackLayout>
+    </ScrollView>
 
 </ContentPage>

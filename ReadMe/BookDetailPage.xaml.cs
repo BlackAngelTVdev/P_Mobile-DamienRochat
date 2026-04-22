@@ -10,12 +10,20 @@ public partial class BookDetailPage : ContentPage
     private readonly IApiHelper _apiHelper;
     private Book? _book;
     private bool _isBusy;
-    private int _selectedRating = 5;
 
     public Book? Book
     {
         get => _book;
-        set { _book = value; OnPropertyChanged(); }
+        set
+        {
+            _book = value;
+            OnPropertyChanged();
+
+            if (value?.Id > 0)
+            {
+                _ = LoadBookDetailsAsync(value.Id);
+            }
+        }
     }
 
     // Utilisation de 'new' pour éviter le conflit avec la propriété native
@@ -27,103 +35,86 @@ public partial class BookDetailPage : ContentPage
 
     public BookDetailPage()
     {
-        // Si cette ligne reste rouge après un Rebuild, vérifie le x:Class dans ton XAML
         InitializeComponent();
         BindingContext = this;
 
         _apiHelper = Application.Current?.Handler?.MauiContext?.Services.GetService<IApiHelper>()
             ?? new ApiHelper(new HttpClient { BaseAddress = new Uri(ApiHelper.BaseUrl) });
-
-        // On attend que l'UI soit prête pour afficher les étoiles
-        Dispatcher.Dispatch(() => UpdateStars());
     }
 
-    private void OnStarTapped(object sender, TappedEventArgs e)
+    private async void OnReadClicked(object sender, EventArgs e)
     {
-        if (e.Parameter is string ratingStr && int.TryParse(ratingStr, out int rating))
+        if (Book?.Id is null or <= 0)
         {
-            _selectedRating = rating;
-            UpdateStars();
+            await DisplayAlert("Information", "Livre introuvable.", "OK");
+            return;
         }
+
+        var epubUrl = new Uri(new Uri(ApiHelper.BaseUrl), $"book/{Book.Id}/file").ToString();
+
+        await Shell.Current.GoToAsync(nameof(EpubViewerPage), new Dictionary<string, object>
+        {
+            { "Book", Book },
+            { "EpubUrl", Uri.EscapeDataString(epubUrl) }
+        });
     }
 
-    private void UpdateStars()
+    private async void OnDeleteClicked(object sender, EventArgs e)
     {
-        // Le check 'null' ici évite le crash si le lien XAML/C# est encore instable
-        if (StarRatingLayout?.Children == null) return;
-
-        for (int i = 0; i < StarRatingLayout.Children.Count; i++)
+        if (Book?.Id is null or <= 0)
         {
-            if (StarRatingLayout.Children[i] is Label starLabel)
-            {
-                starLabel.TextColor = (i < _selectedRating) ? Color.FromArgb("#6A44A3") : Color.FromArgb("#DCCCF0");
-                starLabel.Text = (i < _selectedRating) ? "★" : "☆";
-            }
+            await DisplayAlert("Information", "Livre introuvable.", "OK");
+            return;
         }
-    }
 
-    private async void OnSubmitReviewClicked(object sender, EventArgs e)
-    {
-        // Sécurité si l'Entry n'est pas encore bindée
-        if (CommentEntry == null || string.IsNullOrWhiteSpace(CommentEntry.Text))
+        var confirm = await DisplayAlert("Suppression", "Supprimer ce livre ?", "Oui", "Non");
+        if (!confirm)
         {
-            await DisplayAlert("Information", "Veuillez saisir un commentaire.", "OK");
             return;
         }
 
         try
         {
             IsBusy = true;
-            var newComment = new BookComment { UserId = 1, Title = CommentEntry.Text };
+            var deleted = await _apiHelper.DeleteAsync($"book/{Book.Id}/delete");
+            if (!deleted)
+            {
+                await DisplayAlert("Erreur", "Suppression impossible.", "OK");
+                return;
+            }
 
-            // Simulation API
-            await _apiHelper.PostAsync<BookComment, BookComment>($"books/{Book?.Id}/comments", newComment);
-
-            Book?.Comments?.Add(newComment);
-            OnPropertyChanged(nameof(Book));
-            CommentEntry.Text = string.Empty;
-
-            await DisplayAlert("Succès", "Votre avis a été enregistré !", "OK");
+            await DisplayAlert("OK", "Livre supprimé.", "OK");
+            await Shell.Current.GoToAsync("..");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"API Error: {ex.Message}");
-            await DisplayAlert("Information", "Envoi simulé réussi.", "OK");
+            await DisplayAlert("Erreur", ex.Message, "OK");
         }
-        finally { IsBusy = false; }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
-    private async void OnReadClicked(object sender, EventArgs e)
+    private async Task LoadBookDetailsAsync(int bookId)
     {
-        if (string.IsNullOrEmpty(Book?.Extrait))
+        try
         {
-            await DisplayAlert("Information", "Aucun extrait disponible.", "OK");
-            return;
+            IsBusy = true;
+            var details = await _apiHelper.GetAsync<Book>($"book/{bookId}");
+            if (details is not null)
+            {
+                _book = details;
+                OnPropertyChanged(nameof(Book));
+            }
         }
-
-        var epubCandidateUrl = BuildEpubCandidate(Book.Extrait);
-
-        await Shell.Current.GoToAsync(nameof(EpubViewerPage), new Dictionary<string, object>
+        catch
         {
-            { "Book", Book },
-            { "EpubUrl", Uri.EscapeDataString(epubCandidateUrl) }
-        });
-    }
-
-    private async void OnViewPdfClicked(object sender, EventArgs e)
-    {
-        if (string.IsNullOrEmpty(Book?.Extrait))
-        {
-            await DisplayAlert("Information", "Aucun extrait disponible.", "OK");
-            return;
+            // Keep partial data from list when detail endpoint is unavailable.
         }
-
-        await Shell.Current.GoToAsync(nameof(PdfViewerPage), new Dictionary<string, object> { { "Book", Book } });
-    }
-
-    private static string BuildEpubCandidate(string sourceUrl)
-    {
-        return sourceUrl.Replace("/pdf/", "/epub/", StringComparison.OrdinalIgnoreCase)
-            .Replace(".pdf", ".epub", StringComparison.OrdinalIgnoreCase);
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }

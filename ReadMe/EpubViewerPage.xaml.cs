@@ -60,7 +60,7 @@ public partial class EpubViewerPage : ContentPage
 
         var sourceUrl = !string.IsNullOrWhiteSpace(EpubUrl)
             ? EpubUrl
-            : Book?.Extrait;
+            : Book?.EpubFilePath;
 
         if (string.IsNullOrWhiteSpace(sourceUrl))
         {

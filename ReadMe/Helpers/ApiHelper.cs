@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Maui.Devices;
 
 namespace ReadMe.Helpers;
 
@@ -8,13 +9,16 @@ public interface IApiHelper
 {
     Task<T?> GetAsync<T>(string endpoint, CancellationToken cancellationToken = default);
     Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest payload, CancellationToken cancellationToken = default);
+    Task<TResponse?> PostMultipartAsync<TResponse>(string endpoint, MultipartFormDataContent content, CancellationToken cancellationToken = default);
     Task<TResponse?> PutAsync<TRequest, TResponse>(string endpoint, TRequest payload, CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(string endpoint, CancellationToken cancellationToken = default);
 }
 
 public class ApiHelper : IApiHelper
 {
-    public const string BaseUrl = "https://my-json-server.typicode.com/BlackAngelTVdev/Passion-lecture/";
+    public static string BaseUrl => DeviceInfo.Platform == DevicePlatform.Android
+        ? "http://10.0.2.2:3000/"
+        : "http://localhost:3000/";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -41,6 +45,22 @@ public class ApiHelper : IApiHelper
         var content = CreateJsonContent(payload);
         using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
         response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<TResponse>(JsonOptions, cancellationToken);
+    }
+
+    public async Task<TResponse?> PostMultipartAsync<TResponse>(
+        string endpoint,
+        MultipartFormDataContent content,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        if (response.Content.Headers.ContentLength == 0)
+        {
+            return default;
+        }
 
         return await response.Content.ReadFromJsonAsync<TResponse>(JsonOptions, cancellationToken);
     }

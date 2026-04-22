@@ -17,4 +17,5 @@ Date,Nom,Temps,État,Description
 "01/04/2026","Feat(Résumé): Ouvre le pdf de résumer","[40]","[DONE]","Feat(Résumé): Ouvre le pdf de résumer"
 "01/04/2026","Feat(DarkMode): ajout d'un dark mode","[20]","[WPI]","Feat(DarkMode): ajout d'un dark mode"
 "01/04/2026","Feat(EPUB): ouvire un epub","[40]","[WPI]","Feat(EPUB): ouvire un epub"
-"01/04/2026","Sauvegarde","[4]","[DONE]","Sauvegarde du code sur le cloud"
+
+"01/04/2026","Chor(JNR)","[0]","[DONE]","Chor(JNR)"
