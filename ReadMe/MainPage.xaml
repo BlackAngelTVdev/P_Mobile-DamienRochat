@@ -10,104 +10,138 @@
                  Refreshing="OnRefreshing"
                  RefreshColor="#6B43AB">
 
-        <Grid RowDefinitions="Auto,Auto,*" Padding="16,16,16,10">
+        <Grid RowDefinitions="Auto,*" Padding="16,16,16,10" RowSpacing="10">
 
-            <CollectionView Grid.Row="2"
-                            ItemsSource="{Binding Books}"
-                            SelectionMode="Single"
-                            SelectionChanged="OnSelectionChanged"
-                            EmptyView="Aucun livre trouvé.">
+            <VerticalStackLayout Grid.Row="0" Spacing="4">
+                <Label Text="Ta bibliothèque"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="#2A1942" />
+                <Label Text="Tire vers le bas pour synchroniser avec l'API"
+                       FontSize="13"
+                       TextColor="#6F5A92" />
+            </VerticalStackLayout>
+
+            <CollectionView Grid.Row="1"
+                             x:Name="BooksCollection"
+                             ItemsSource="{Binding Books}"
+                             SelectionMode="None"
+                             EmptyView="Aucun livre trouvé."
+                             RemainingItemsThreshold="3"
+                             RemainingItemsThresholdReached="OnRemainingItemsThresholdReached">
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Book">
-                        <Grid RowDefinitions="Auto,Auto" 
-                              ColumnDefinitions="86,*" 
-                              Padding="0,8"
-                              BackgroundColor="Transparent">
+                        <Border Margin="0,6"
+                                Padding="10"
+                                BackgroundColor="#F5F0FC"
+                                Stroke="#D7C8EC"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 14">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnItemTapped" NumberOfTapsRequired="1" />
+                            </Border.GestureRecognizers>
+                            <Grid RowDefinitions="Auto,Auto" 
+                                  ColumnDefinitions="90,*" 
+                                  RowSpacing="8"
+                                  ColumnSpacing="12"
+                                  BackgroundColor="Transparent">
 
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroupList>
-                                    <VisualStateGroup x:Name="CommonStates">
-                                        <VisualState x:Name="Normal" />
-                                        <VisualState x:Name="Selected">
-                                            <VisualState.Setters>
-                                                <Setter Property="BackgroundColor" Value="Transparent" />
-                                            </VisualState.Setters>
-                                        </VisualState>
-                                    </VisualStateGroup>
-                                </VisualStateGroupList>
-                            </VisualStateManager.VisualStateGroups>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroupList>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Normal" />
+                                            <VisualState x:Name="Selected">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateGroupList>
+                                </VisualStateManager.VisualStateGroups>
 
-                            <Border Grid.Row="0"
-                                    Grid.Column="0"
-                                    HeightRequest="122"
-                                    WidthRequest="82"
-                                    BackgroundColor="#DCCCF0"
-                                    StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 8">
-                                <Grid>
-                                    <Label Text="EPUB"
-                                           TextColor="#6A44A3"
+                                <Border Grid.Row="0"
+                                        Grid.Column="0"
+                                        HeightRequest="128"
+                                        WidthRequest="88"
+                                        BackgroundColor="#DCCCF0"
+                                        Stroke="#C7B2E2"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 10">
+                                    <Grid>
+                                        <VerticalStackLayout Spacing="2"
+                                                             HorizontalOptions="Center"
+                                                             VerticalOptions="Center">
+                                            <Label Text="EPUB"
+                                                   TextColor="#6A44A3"
+                                                   FontAttributes="Bold"
+                                                   FontSize="15"
+                                                   HorizontalOptions="Center" />
+                                            <Label Text="Cover"
+                                                   TextColor="#8872AE"
+                                                   FontSize="11"
+                                                   HorizontalOptions="Center" />
+                                        </VerticalStackLayout>
+
+                                        <Image Source="{Binding CoverImageUrl}"
+                                               Aspect="AspectFill" />
+                                    </Grid>
+                                </Border>
+
+                                <VerticalStackLayout Grid.Row="0"
+                                                     Grid.Column="1"
+                                                     Spacing="4"
+                                                     Padding="0,2,0,0"
+                                                     VerticalOptions="Center">
+
+                                    <Label Text="{Binding Title}"
+                                         FontSize="19"
                                            FontAttributes="Bold"
-                                           FontSize="16"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center" />
-                                </Grid>
-                            </Border>
+                                           TextColor="#23163B"
+                                           LineBreakMode="TailTruncation" />
 
-                            <VerticalStackLayout Grid.Row="0"
-                                                 Grid.Column="1"
-                                                 Spacing="4"
-                                                 Padding="10,0,0,0"
-                                                 VerticalOptions="Center">
-
-                                <Label Text="{Binding Title}"
-                                       FontSize="17"
-                                       FontAttributes="Bold"
-                                       TextColor="#23163B"
-                                       LineBreakMode="TailTruncation" />
-
-                                <Label Text="{Binding MetaLine}"
-                                       FontSize="12"
-                                       TextColor="#5E4E7B"
-                                       LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding MetaLine}"
+                                           FontSize="13"
+                                           TextColor="#5E4E7B"
+                                           LineBreakMode="TailTruncation" />
 
                                     <Label Text="{Binding SecondaryLine}"
-                                        FontSize="12"
-                                        TextColor="#5E4E7B"
-                                        LineBreakMode="TailTruncation" />
+                                           FontSize="12"
+                                           TextColor="#5E4E7B"
+                                           LineBreakMode="TailTruncation" />
 
                                     <Label Text="{Binding DetailLine}"
-                                       FontSize="12"
-                                       TextColor="#6A44A3"
-                                        FontAttributes="Bold"
-                                        LineBreakMode="TailTruncation" />
+                                           FontSize="12"
+                                           TextColor="#6A44A3"
+                                           FontAttributes="Bold"
+                                           LineBreakMode="TailTruncation" />
 
                                     <Label Text="{Binding UploadedLine}"
-                                        FontSize="11"
-                                        TextColor="#6A44A3"
-                                        Opacity="0.8" />
+                                           FontSize="11"
+                                           TextColor="#6A44A3"
+                                           Opacity="0.8" />
 
                                     <Label Text="{Binding DescriptionLine}"
-                                       FontSize="11"
-                                       TextColor="#6A44A3"
-                                        Opacity="0.8"
-                                        MaxLines="2"
-                                        LineBreakMode="TailTruncation" />
-                            </VerticalStackLayout>
+                                           FontSize="11"
+                                           TextColor="#6A44A3"
+                                           Opacity="0.85"
+                                           MaxLines="2"
+                                           LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
 
-                            <BoxView Grid.Row="1"
-                                     Grid.ColumnSpan="2"
-                                     Margin="0,10,0,0"
-                                     HeightRequest="1"
-                                     HorizontalOptions="Fill"
-                                     Color="#D8C8EA" />
-                        </Grid>
+                                <BoxView Grid.Row="1"
+                                         Grid.ColumnSpan="2"
+                                         Margin="0,2,0,0"
+                                         HeightRequest="1"
+                                         HorizontalOptions="Fill"
+                                         Color="#D8C8EA" />
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <ActivityIndicator Grid.RowSpan="3"
+            <ActivityIndicator Grid.RowSpan="2"
                                IsVisible="{Binding IsRefreshing}"
                                IsRunning="{Binding IsRefreshing}"
                                HorizontalOptions="Center"

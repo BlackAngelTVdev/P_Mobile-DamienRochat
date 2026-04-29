@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ReadMe;
 
@@ -13,7 +14,7 @@ namespace ReadMe;
 [QueryProperty(nameof(EpubUrl), "EpubUrl")]
 public partial class EpubViewerPage : ContentPage
 {
-    private readonly HttpClient _httpClient = new();
+    private readonly IApiHelper _apiHelper;
     private Book? _book;
     private string? _epubUrl;
     private string? _lastLoadedUrl;
@@ -48,7 +49,10 @@ public partial class EpubViewerPage : ContentPage
     {
         InitializeComponent();
         BindingContext = this;
-      UpdatePageIndicator();
+                _apiHelper = Application.Current?.Handler?.MauiContext?.Services.GetService<IApiHelper>()
+                        ?? new ApiHelper(new HttpClient { BaseAddress = new Uri(ApiHelper.BaseUrl) });
+
+                UpdatePageIndicator();
     }
 
     private async void LoadEpub()
@@ -122,50 +126,15 @@ public partial class EpubViewerPage : ContentPage
     {
         try
         {
-            using var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-            response.EnsureSuccessStatusCode();
-
-            var totalBytes = response.Content.Headers.ContentLength;
-            await using var stream = await response.Content.ReadAsStreamAsync();
-            await using var buffer = new MemoryStream();
-
-            var chunk = new byte[16 * 1024];
-            long readTotal = 0;
-            int bytesRead;
-
-            while ((bytesRead = await stream.ReadAsync(chunk.AsMemory(0, chunk.Length))) > 0)
-            {
-                await buffer.WriteAsync(chunk.AsMemory(0, bytesRead));
-                readTotal += bytesRead;
-
-                if (totalBytes.HasValue && totalBytes.Value > 0)
-                {
-                    var progress = (double)readTotal / totalBytes.Value;
-                    var percent = (int)Math.Round(progress * 100);
-
-                    UpdateLoadingUi(true, $"Telechargement EPUB: {percent}% ({readTotal / 1024} KB / {totalBytes.Value / 1024} KB)", progress);
-                    Debug.WriteLine($"[EPUB] Download progress: {percent}% ({readTotal}/{totalBytes.Value} bytes)");
-                }
-                else
-                {
-                    UpdateLoadingUi(true, $"Telechargement EPUB: {readTotal / 1024} KB", 0);
-                    Debug.WriteLine($"[EPUB] Download progress: {readTotal} bytes (unknown total)");
-                }
-            }
-
-            UpdateLoadingUi(true, "Ouverture du livre...", 1);
-            return buffer.ToArray();
-        }
-        catch (ObjectDisposedException ex)
-        {
-            Debug.WriteLine($"[EPUB] Progressive stream disposed, fallback download: {ex.Message}");
-            UpdateLoadingUi(true, "Reprise du telechargement...", 0);
-
-            var bytes = await _httpClient.GetByteArrayAsync(url);
-
-            Debug.WriteLine($"[EPUB] Fallback download complete: {bytes.Length} bytes");
+            var bytes = await _apiHelper.GetBytesAsync(url);
+            Debug.WriteLine($"[EPUB] Download complete: {bytes.Length} bytes");
             UpdateLoadingUi(true, "Ouverture du livre...", 1);
             return bytes;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[EPUB] Download failed: {ex.Message}");
+            throw;
         }
     }
 

@@ -6,13 +6,29 @@
              BackgroundColor="#EFE9F8">
 
     <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="12">
-            <Border HeightRequest="240"
+        <VerticalStackLayout Padding="16" Spacing="14">
+            <Border HeightRequest="250"
                     StrokeThickness="0"
-                    StrokeShape="RoundRectangle 14"
+                    StrokeShape="RoundRectangle 16"
                     BackgroundColor="#DCCCF0">
-                <Image Source="{Binding Book.CoverImageUrl}"
-                       Aspect="AspectFill" />
+                <Grid>
+                    <VerticalStackLayout Spacing="2"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center">
+                        <Label Text="Couverture"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="#6A44A3"
+                               HorizontalOptions="Center" />
+                        <Label Text="du livre"
+                               FontSize="13"
+                               TextColor="#8B73B0"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <Image Source="{Binding Book.CoverImageUrl}"
+                           Aspect="AspectFill" />
+                </Grid>
             </Border>
 
             <Label Text="{Binding Book.Title}"
@@ -44,37 +60,43 @@
                    TextColor="#2D2144"
                    LineBreakMode="WordWrap" />
 
-            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
-                <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2">
-                    <Label Text="ISBN" FontSize="12" TextColor="#5E4E7B" />
-                    <Label Text="{Binding Book.Isbn}" FontSize="13" FontAttributes="Bold" TextColor="#23163B" />
-                </VerticalStackLayout>
+            <Border Padding="12"
+                    BackgroundColor="#F5F0FC"
+                    Stroke="#D7C8EC"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12">
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                    <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2">
+                        <Label Text="ISBN" FontSize="12" TextColor="#5E4E7B" />
+                        <Label Text="{Binding Book.Isbn}" FontSize="13" FontAttributes="Bold" TextColor="#23163B" />
+                    </VerticalStackLayout>
 
-                <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2">
-                    <Label Text="Langue" FontSize="12" TextColor="#5E4E7B" />
-                    <Label Text="{Binding Book.Language}" FontSize="13" FontAttributes="Bold" TextColor="#23163B" />
-                </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2">
+                        <Label Text="Langue" FontSize="12" TextColor="#5E4E7B" />
+                        <Label Text="{Binding Book.Language}" FontSize="13" FontAttributes="Bold" TextColor="#23163B" />
+                    </VerticalStackLayout>
 
-                <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="2">
-                    <Label Text="Date de publication" FontSize="12" TextColor="#5E4E7B" />
-                    <Label Text="{Binding Book.PublishDateText}" FontSize="13" FontAttributes="Bold" TextColor="#23163B" />
-                </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="2">
+                        <Label Text="Date de publication" FontSize="12" TextColor="#5E4E7B" />
+                        <Label Text="{Binding Book.PublishDateText}" FontSize="13" FontAttributes="Bold" TextColor="#23163B" />
+                    </VerticalStackLayout>
 
-                <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="2">
-                    <Label Text="Taille fichier" FontSize="12" TextColor="#5E4E7B" />
-                    <Label Text="{Binding Book.DetailLine}" FontSize="13" FontAttributes="Bold" TextColor="#23163B" />
-                </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="2">
+                        <Label Text="Taille fichier" FontSize="12" TextColor="#5E4E7B" />
+                        <Label Text="{Binding Book.DetailLine}" FontSize="13" FontAttributes="Bold" TextColor="#23163B" />
+                    </VerticalStackLayout>
 
-                <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="2">
-                    <Label Text="Fichier EPUB" FontSize="12" TextColor="#5E4E7B" />
-                    <Label Text="{Binding Book.EpubFilePath}" FontSize="13" FontAttributes="Bold" TextColor="#23163B" LineBreakMode="TailTruncation" />
-                </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="2">
+                        <Label Text="Fichier EPUB" FontSize="12" TextColor="#5E4E7B" />
+                        <Label Text="{Binding Book.EpubFilePath}" FontSize="13" FontAttributes="Bold" TextColor="#23163B" LineBreakMode="TailTruncation" />
+                    </VerticalStackLayout>
 
-                <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="2">
-                    <Label Text="Ajouté le" FontSize="12" TextColor="#5E4E7B" />
-                    <Label Text="{Binding Book.UploadedAt, StringFormat='{0:dd/MM/yyyy HH:mm}'}" FontSize="13" FontAttributes="Bold" TextColor="#23163B" />
-                </VerticalStackLayout>
-            </Grid>
+                    <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="2">
+                        <Label Text="Ajouté le" FontSize="12" TextColor="#5E4E7B" />
+                        <Label Text="{Binding Book.UploadedAt, StringFormat='{0:dd/MM/yyyy HH:mm}'}" FontSize="13" FontAttributes="Bold" TextColor="#23163B" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
 
             <Button Text="Lire le fichier EPUB"
                     Clicked="OnReadClicked"
@@ -82,7 +104,7 @@
                     TextColor="White"
                     CornerRadius="10"
                     HeightRequest="46"
-                    Margin="0,10,0,0" />
+                    Margin="0,6,0,0" />
 
             <Button Text="Supprimer ce livre"
                     Clicked="OnDeleteClicked"

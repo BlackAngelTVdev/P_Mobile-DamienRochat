@@ -12,6 +12,12 @@ obj/
 out/
 dist/
 
+# Local project folders
+maui-client/
+
+# Documents
+*.pdf
+
 # NuGet
 *.nupkg
 *.snupkg

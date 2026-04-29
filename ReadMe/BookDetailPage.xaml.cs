@@ -52,8 +52,7 @@ public partial class BookDetailPage : ContentPage
 
         await Shell.Current.GoToAsync(nameof(EpubViewerPage), new Dictionary<string, object>
         {
-            { "Book", Book },
-            { "EpubUrl", Uri.EscapeDataString(Book.EpubFileUrl) }
+            { "Book", Book }
         });
     }
 
