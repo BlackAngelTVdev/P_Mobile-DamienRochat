@@ -68,6 +68,16 @@ async function ensureDbFile() {
    await handle.close();
 }
 
+async function resetDbFile() {
+   try {
+      await fsp.unlink(dbFile);
+   } catch (error) {
+      if (error.code !== 'ENOENT') {
+         throw error;
+      }
+   }
+}
+
 function runDb(sql, params = []) {
    return new Promise((resolve, reject) => {
       db.run(sql, params, function (error) {
@@ -425,6 +435,7 @@ app.get('/epub/2', (req, res) => {
 
 async function startServer() {
    await ensureStorage();
+   await resetDbFile();
    await initDb();
    await seedMissingBooks();
 
