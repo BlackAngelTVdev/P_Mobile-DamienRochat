@@ -17,6 +17,9 @@ public class Book
     [JsonPropertyName("description")]
     public string? Description { get; set; }
 
+    [JsonPropertyName("excerpt")]
+    public string? Extrait { get; set; }
+
     [JsonPropertyName("cover_image_path")]
     public string? CoverImagePath { get; set; }
 
@@ -57,6 +60,10 @@ public class Book
     public string DescriptionLine => string.IsNullOrWhiteSpace(Description)
         ? "Aucune description"
         : Description;
+
+    public string ExtraitLine => string.IsNullOrWhiteSpace(Extrait)
+        ? "Aucun extrait"
+        : Extrait;
 
     private static string FormatFileSize(long bytes)
     {

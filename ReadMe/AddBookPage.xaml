@@ -22,8 +22,34 @@
              BackgroundColor="White"
              TextColor="#23163B" />
 
+         <Entry x:Name="IsbnEntry"
+             Placeholder="ISBN"
+             BackgroundColor="White"
+             TextColor="#23163B" />
+
+         <Entry x:Name="LanguageEntry"
+             Placeholder="Langue"
+             BackgroundColor="White"
+             TextColor="#23163B" />
+
+         <Entry x:Name="CoverImagePathEntry"
+             Placeholder="Chemin de couverture (optionnel)"
+             BackgroundColor="White"
+             TextColor="#23163B" />
+
+         <DatePicker x:Name="PublishDatePicker"
+             BackgroundColor="White"
+             TextColor="#23163B" />
+
          <Editor x:Name="DescriptionEditor"
               Placeholder="Description (optionnel)"
+              AutoSize="TextChanges"
+              HeightRequest="120"
+              BackgroundColor="White"
+              TextColor="#23163B" />
+
+         <Editor x:Name="ExtraitEditor"
+              Placeholder="Extrait (optionnel)"
               AutoSize="TextChanges"
               HeightRequest="120"
               BackgroundColor="White"

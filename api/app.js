@@ -33,6 +33,7 @@ function toPublicBook(book) {
       title: book.title,
       author: book.author,
       description: book.description ?? '',
+   excerpt: book.excerpt ?? '',
       cover_image_path: book.coverImagePath ?? '',
       epub_file_path: book.epubFilePath,
       file_size_bytes: book.fileSizeBytes,
@@ -81,6 +82,7 @@ function normalizeBookRecord(book) {
       title: book.title ?? '',
       author: book.author ?? '',
       description: book.description ?? '',
+   excerpt: book.excerpt ?? book.extrait ?? '',
       coverImagePath: book.coverImagePath ?? book.cover_image_path ?? '',
       epubFilePath: book.epubFilePath ?? book.epub_file_path ?? '',
       fileSizeBytes: Number(book.fileSizeBytes ?? book.file_size_bytes ?? 0),
@@ -212,6 +214,7 @@ app.post('/books/upload', upload.single('file'), async (req, res) => {
       const title = (req.body.title ?? '').trim();
       const author = (req.body.author ?? '').trim();
       const description = (req.body.description ?? '').trim();
+      const excerpt = (req.body.excerpt ?? req.body.extrait ?? '').trim();
 
       if (!title || !author) {
          return res.status(400).json({ message: 'Title and author are required' });
@@ -237,6 +240,7 @@ app.post('/books/upload', upload.single('file'), async (req, res) => {
          isbn: (req.body.isbn ?? '').trim(),
          language: (req.body.language ?? '').trim(),
          publishDate: req.body.publish_date ? new Date(req.body.publish_date).toISOString() : null,
+         excerpt,
          uploadedAt: new Date().toISOString(),
       };
 

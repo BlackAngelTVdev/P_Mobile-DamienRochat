@@ -260,16 +260,16 @@
     "uploadedAt": "2026-04-29T15:27:00.000Z"
   },
   {
-    "id": 21,
-    "title": "trdt",
-    "author": "rmdldlkend",
-    "description": "dndkdkdbebdb",
-    "coverImagePath": "",
-    "epubFilePath": "storage/21-Harry_Potter_and_the_Goblet_of_Fire_--_J__K__Rowling_Jim_Kay_--_Harry_Potter_4_London_Great_Britain_2015_--_Bloomsbury_--_isbn13_9781408865422_--_8efbf8e9f8b4592c7b0dbedec9c0ec05_--_Anna_s_Archive.epub",
+    "id": 22,
+    "title": "Harry Potter et la coupe de feux",
+    "author": "JK ruling",
+    "description": "",
+    "coverImagePath": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTX71gi1A_XmqYqWw8TWSF8Ku_EBPJ7mlE4lQ&s",
+    "epubFilePath": "storage/22-Harry_Potter_and_the_Goblet_of_Fire_--_J__K__Rowling_Jim_Kay_--_Harry_Potter_4_London_Great_Britain_2015_--_Bloomsbury_--_isbn13_9781408865422_--_8efbf8e9f8b4592c7b0dbedec9c0ec05_--_Anna_s_Archive.epub",
     "fileSizeBytes": 725408,
     "isbn": "",
-    "language": "",
-    "publishDate": null,
-    "uploadedAt": "2026-05-06T12:04:37.803Z"
+    "language": "EN",
+    "publishDate": "2026-05-05T22:00:00.000Z",
+    "uploadedAt": "2026-05-06T12:16:20.141Z"
   }
 ]

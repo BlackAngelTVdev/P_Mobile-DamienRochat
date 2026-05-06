@@ -19,7 +19,7 @@
         </VerticalStackLayout>
 
         <ScrollView Grid.Row="1" Padding="25">
-            <Label Text="{Binding Book.Extrait}"
+            <Label Text="{Binding Book.ExtraitLine}"
                    FontSize="16"
                    TextColor="#23163B"
                    LineHeight="1.6"
