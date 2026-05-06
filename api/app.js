@@ -3,18 +3,22 @@ const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
 const multer = require('multer');
+const sqlite3 = require('sqlite3');
+const zlib = require('zlib');
+const { Readable } = require('stream');
+const { pipeline } = require('stream/promises');
 
 const app = express();
 const port = 3000;
 const storageDir = path.join(__dirname, 'storage');
-const dataFile = path.join(storageDir, 'books.json');
+const dbFile = path.join(storageDir, 'books.db');
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(express.json());
 app.use('/storage', express.static(storageDir));
 
-let books = [];
-let nextId = 1;
+const sqlite = sqlite3.verbose();
+let db;
 
 function getContentType(filePath) {
    switch (path.extname(filePath).toLowerCase()) {
@@ -33,68 +37,113 @@ function toPublicBook(book) {
       title: book.title,
       author: book.author,
       description: book.description ?? '',
-   excerpt: book.excerpt ?? '',
-      cover_image_path: book.coverImagePath ?? '',
-      epub_file_path: book.epubFilePath,
-      file_size_bytes: book.fileSizeBytes,
+      excerpt: book.excerpt ?? '',
+      cover_image_path: book.cover_image_path ?? '',
+      epub_file_path: book.epub_file_path,
+      file_size_bytes: book.file_size_bytes ?? 0,
       isbn: book.isbn ?? '',
       language: book.language ?? '',
-      publish_date: book.publishDate ?? null,
-      uploaded_at: book.uploadedAt,
+      publish_date: book.publish_date ?? null,
+      uploaded_at: book.uploaded_at,
    };
 }
 
 function makeFileName(bookId, originalName) {
    const parsed = path.parse(originalName);
    const safeBaseName = parsed.name.replace(/[^a-z0-9-_]+/gi, '_').replace(/^_+|_+$/g, '') || 'book';
-   return `${bookId}-${safeBaseName}${parsed.ext.toLowerCase()}`;
-}
-
-function findBook(bookId) {
-   return books.find((book) => book.id === bookId);
+   const extension = parsed.ext ? parsed.ext.toLowerCase() : '.epub';
+   return `${bookId}-${safeBaseName}${extension}.gz`;
 }
 
 function resolveBookPath(book) {
-   return path.join(__dirname, book.epubFilePath);
+   return path.join(__dirname, book.epub_file_path);
 }
 
 async function ensureStorage() {
    await fsp.mkdir(storageDir, { recursive: true });
 }
 
-async function loadBooks() {
-   try {
-      const rawBooks = await fsp.readFile(dataFile, 'utf8');
-      const parsedBooks = JSON.parse(rawBooks);
-      return Array.isArray(parsedBooks) ? parsedBooks : [];
-   } catch (error) {
-      if (error.code === 'ENOENT') {
-         return [];
-      }
-
-      throw error;
-   }
+async function ensureDbFile() {
+   const handle = await fsp.open(dbFile, 'a');
+   await handle.close();
 }
 
-function normalizeBookRecord(book) {
-   return {
-      id: Number.parseInt(book.id, 10),
-      title: book.title ?? '',
-      author: book.author ?? '',
-      description: book.description ?? '',
-   excerpt: book.excerpt ?? book.extrait ?? '',
-      coverImagePath: book.coverImagePath ?? book.cover_image_path ?? '',
-      epubFilePath: book.epubFilePath ?? book.epub_file_path ?? '',
-      fileSizeBytes: Number(book.fileSizeBytes ?? book.file_size_bytes ?? 0),
-      isbn: book.isbn ?? '',
-      language: book.language ?? '',
-      publishDate: book.publishDate ?? book.publish_date ?? null,
-      uploadedAt: book.uploadedAt ?? book.uploaded_at ?? new Date().toISOString(),
-   };
+function runDb(sql, params = []) {
+   return new Promise((resolve, reject) => {
+      db.run(sql, params, function (error) {
+         if (error) {
+            reject(error);
+            return;
+         }
+
+         resolve(this);
+      });
+   });
 }
 
-async function saveBooks() {
-   await fsp.writeFile(dataFile, JSON.stringify(books, null, 2), 'utf8');
+function getDb(sql, params = []) {
+   return new Promise((resolve, reject) => {
+      db.get(sql, params, (error, row) => {
+         if (error) {
+            reject(error);
+            return;
+         }
+
+         resolve(row);
+      });
+   });
+}
+
+function allDb(sql, params = []) {
+   return new Promise((resolve, reject) => {
+      db.all(sql, params, (error, rows) => {
+         if (error) {
+            reject(error);
+            return;
+         }
+
+         resolve(rows);
+      });
+   });
+}
+
+async function initDb() {
+   await ensureDbFile();
+   console.log(`SQLite DB: ${dbFile}`);
+   db = new sqlite.Database(dbFile);
+
+   await runDb(`
+      CREATE TABLE IF NOT EXISTS books (
+         id INTEGER PRIMARY KEY AUTOINCREMENT,
+         title TEXT NOT NULL,
+         author TEXT NOT NULL,
+         description TEXT,
+         excerpt TEXT,
+         cover_image_path TEXT,
+         epub_file_path TEXT NOT NULL,
+         file_size_bytes INTEGER,
+         isbn TEXT,
+         language TEXT,
+         publish_date TEXT,
+         uploaded_at TEXT
+      )
+   `);
+}
+
+
+async function getNextId() {
+   const row = await getDb('SELECT COALESCE(MAX(id), 0) + 1 AS nextId FROM books');
+   return row?.nextId ?? 1;
+}
+
+async function compressBufferToFile(buffer, destinationPath) {
+   const gzip = zlib.createGzip({ level: zlib.constants.Z_BEST_COMPRESSION });
+   await pipeline(Readable.from(buffer), gzip, fs.createWriteStream(destinationPath));
+}
+
+async function compressFileToFile(sourcePath, destinationPath) {
+   const gzip = zlib.createGzip({ level: zlib.constants.Z_BEST_COMPRESSION });
+   await pipeline(fs.createReadStream(sourcePath), gzip, fs.createWriteStream(destinationPath));
 }
 
 async function seedMissingBooks() {
@@ -120,11 +169,12 @@ async function seedMissingBooks() {
    ];
 
    for (const seed of seeds) {
-      const alreadyPresent = books.some((book) =>
-         book.title.toLowerCase() === seed.title.toLowerCase() &&
-         book.author.toLowerCase() === seed.author.toLowerCase());
+      const existing = await getDb(
+         'SELECT id FROM books WHERE LOWER(title) = LOWER(?) AND LOWER(author) = LOWER(?)',
+         [seed.title, seed.author]
+      );
 
-      if (alreadyPresent) {
+      if (existing) {
          continue;
       }
 
@@ -132,33 +182,48 @@ async function seedMissingBooks() {
          continue;
       }
 
+      const nextId = await getNextId();
       const fileName = makeFileName(nextId, seed.displayName);
       const destinationPath = path.join(storageDir, fileName);
-      await fsp.copyFile(seed.sourcePath, destinationPath);
+      await compressFileToFile(seed.sourcePath, destinationPath);
 
-      const stats = await fsp.stat(destinationPath);
+      const stats = await fsp.stat(seed.sourcePath);
       const uploadedAt = new Date().toISOString();
 
-      books.push({
-         id: nextId,
-         title: seed.title,
-         author: seed.author,
-         description: seed.description,
-         coverImagePath: '',
-         epubFilePath: `storage/${fileName}`,
-         fileSizeBytes: stats.size,
-         isbn: '',
-         language: seed.language,
-         publishDate: null,
-         uploadedAt,
-      });
+      await runDb(
+         `
+         INSERT INTO books (
+            id,
+            title,
+            author,
+            description,
+            excerpt,
+            cover_image_path,
+            epub_file_path,
+            file_size_bytes,
+            isbn,
+            language,
+            publish_date,
+            uploaded_at
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         `,
+         [
+            nextId,
+            seed.title,
+            seed.author,
+            seed.description,
+            '',
+            '',
+            `storage/${fileName}`,
+            stats.size,
+            '',
+            seed.language,
+            null,
+            uploadedAt,
+         ]
+      );
 
-      nextId += 1;
       addedCount += 1;
-   }
-
-   if (addedCount > 0) {
-      await saveBooks();
    }
 
    return addedCount;
@@ -168,20 +233,22 @@ app.get('/health', (req, res) => {
    res.json({ status: 'ok' });
 });
 
-app.get('/books', (req, res) => {
+app.get('/books', async (req, res) => {
    // Support pagination via ?page=1&pageSize=10
    const page = Math.max(1, Number.parseInt(req.query.page || '1', 10));
    const pageSize = Math.max(1, Number.parseInt(req.query.pageSize || '10', 10));
 
    const start = (page - 1) * pageSize;
-   const items = books.slice(start, start + pageSize).map(toPublicBook);
+   const totalRow = await getDb('SELECT COUNT(*) AS count FROM books');
+   const rows = await allDb('SELECT * FROM books ORDER BY id LIMIT ? OFFSET ?', [pageSize, start]);
+   const items = rows.map(toPublicBook);
 
-   return res.json({ items, total: books.length });
+   return res.json({ items, total: totalRow?.count ?? 0 });
 });
 
-app.get('/book/:id', (req, res) => {
+app.get('/book/:id', async (req, res) => {
    const bookId = Number.parseInt(req.params.id, 10);
-   const book = findBook(bookId);
+   const book = await getDb('SELECT * FROM books WHERE id = ?', [bookId]);
 
    if (!book) {
       return res.status(404).json({ message: 'Book not found' });
@@ -190,9 +257,9 @@ app.get('/book/:id', (req, res) => {
    return res.json(toPublicBook(book));
 });
 
-app.get('/book/:id/file', (req, res) => {
+app.get('/book/:id/file', async (req, res) => {
    const bookId = Number.parseInt(req.params.id, 10);
-   const book = findBook(bookId);
+   const book = await getDb('SELECT * FROM books WHERE id = ?', [bookId]);
 
    if (!book) {
       return res.status(404).json({ message: 'Book not found' });
@@ -204,9 +271,30 @@ app.get('/book/:id/file', (req, res) => {
       return res.status(404).json({ message: 'Book file not found' });
    }
 
+   const contentPath = filePath.endsWith('.gz') ? filePath.slice(0, -3) : filePath;
+   const downloadName = `${book.title}${path.extname(contentPath)}`;
+
+   if (filePath.endsWith('.gz')) {
+      res.type(getContentType(contentPath));
+      res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`);
+
+      const source = fs.createReadStream(filePath);
+      const gunzip = zlib.createGunzip();
+
+      source.on('error', (error) => {
+         res.status(500).json({ message: error.message });
+      });
+
+      gunzip.on('error', (error) => {
+         res.status(500).json({ message: error.message });
+      });
+
+      return source.pipe(gunzip).pipe(res);
+   }
+
    return res
       .type(getContentType(filePath))
-      .download(filePath, `${book.title}${path.extname(filePath)}`);
+      .download(filePath, downloadName);
 });
 
 app.post('/books/upload', upload.single('file'), async (req, res) => {
@@ -224,29 +312,58 @@ app.post('/books/upload', upload.single('file'), async (req, res) => {
          return res.status(400).json({ message: 'Book file is required' });
       }
 
+      const nextId = await getNextId();
       const fileName = makeFileName(nextId, req.file.originalname || 'book.epub');
       const destinationPath = path.join(storageDir, fileName);
-      await fsp.writeFile(destinationPath, req.file.buffer);
+      await compressBufferToFile(req.file.buffer, destinationPath);
 
-      const stats = await fsp.stat(destinationPath);
       const newBook = {
          id: nextId,
          title,
          author,
          description,
-         coverImagePath: (req.body.cover_image_path ?? req.body.coverImagePath ?? '').trim(),
-         epubFilePath: `storage/${fileName}`,
-         fileSizeBytes: stats.size,
+         excerpt,
+         cover_image_path: (req.body.cover_image_path ?? req.body.coverImagePath ?? '').trim(),
+         epub_file_path: `storage/${fileName}`,
+         file_size_bytes: req.file.buffer.length,
          isbn: (req.body.isbn ?? '').trim(),
          language: (req.body.language ?? '').trim(),
-         publishDate: req.body.publish_date ? new Date(req.body.publish_date).toISOString() : null,
-         excerpt,
-         uploadedAt: new Date().toISOString(),
+         publish_date: req.body.publish_date ? new Date(req.body.publish_date).toISOString() : null,
+         uploaded_at: new Date().toISOString(),
       };
 
-      books.push(newBook);
-      nextId += 1;
-      await saveBooks();
+      await runDb(
+         `
+         INSERT INTO books (
+            id,
+            title,
+            author,
+            description,
+            excerpt,
+            cover_image_path,
+            epub_file_path,
+            file_size_bytes,
+            isbn,
+            language,
+            publish_date,
+            uploaded_at
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         `,
+         [
+            newBook.id,
+            newBook.title,
+            newBook.author,
+            newBook.description,
+            newBook.excerpt,
+            newBook.cover_image_path,
+            newBook.epub_file_path,
+            newBook.file_size_bytes,
+            newBook.isbn,
+            newBook.language,
+            newBook.publish_date,
+            newBook.uploaded_at,
+         ]
+      );
 
       return res.status(201).json(toPublicBook(newBook));
    } catch (error) {
@@ -256,10 +373,9 @@ app.post('/books/upload', upload.single('file'), async (req, res) => {
 
 app.post('/books/restore', async (req, res) => {
    try {
-      await seedMissingBooks();
-      books = (await loadBooks()).map(normalizeBookRecord);
-      nextId = books.reduce((maxId, book) => Math.max(maxId, book.id), 0) + 1;
-      return res.json({ message: 'Books restored', count: books.length });
+      const addedCount = await seedMissingBooks();
+      const totalRow = await getDb('SELECT COUNT(*) AS count FROM books');
+      return res.json({ message: 'Books restored', count: totalRow?.count ?? 0, added: addedCount });
    } catch (error) {
       return res.status(500).json({ message: error.message });
    }
@@ -268,20 +384,19 @@ app.post('/books/restore', async (req, res) => {
 app.delete('/book/:id/delete', async (req, res) => {
    try {
       const bookId = Number.parseInt(req.params.id, 10);
-      const index = books.findIndex((book) => book.id === bookId);
+      const removedBook = await getDb('SELECT * FROM books WHERE id = ?', [bookId]);
 
-      if (index === -1) {
+      if (!removedBook) {
          return res.status(404).json({ message: 'Book not found' });
       }
 
-      const [removedBook] = books.splice(index, 1);
       const filePath = resolveBookPath(removedBook);
 
       if (fs.existsSync(filePath)) {
          await fsp.unlink(filePath);
       }
 
-      await saveBooks();
+      await runDb('DELETE FROM books WHERE id = ?', [bookId]);
       return res.sendStatus(204);
    } catch (error) {
       return res.status(500).json({ message: error.message });
@@ -310,14 +425,8 @@ app.get('/epub/2', (req, res) => {
 
 async function startServer() {
    await ensureStorage();
-   books = (await loadBooks()).map(normalizeBookRecord);
-   const addedCount = await seedMissingBooks();
-
-   if (addedCount > 0) {
-      books = (await loadBooks()).map(normalizeBookRecord);
-   }
-
-   nextId = books.reduce((maxId, book) => Math.max(maxId, book.id), 0) + 1;
+   await initDb();
+   await seedMissingBooks();
 
    app.listen(port, () => {
       console.log(`Server listening on port ${port}`);
