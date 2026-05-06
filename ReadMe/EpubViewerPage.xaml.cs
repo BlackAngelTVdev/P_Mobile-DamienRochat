@@ -50,7 +50,7 @@ public partial class EpubViewerPage : ContentPage
         InitializeComponent();
         BindingContext = this;
                 _apiHelper = Application.Current?.Handler?.MauiContext?.Services.GetService<IApiHelper>()
-                        ?? new ApiHelper(new HttpClient { BaseAddress = new Uri(ApiHelper.BaseUrl) });
+                    ?? new ApiHelper(new HttpClient());
 
                 UpdatePageIndicator();
     }

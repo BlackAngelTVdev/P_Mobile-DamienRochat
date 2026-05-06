@@ -17,10 +17,7 @@ namespace ReadMe
                 });
 
             builder.Services.AddSingleton<IApiHelper>(_ =>
-                new ApiHelper(new HttpClient
-                {
-                    BaseAddress = new Uri(ApiHelper.BaseUrl)
-                }));
+                new ApiHelper(new HttpClient()));
 
 #if DEBUG
             builder.Logging.AddDebug();

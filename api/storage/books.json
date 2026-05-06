@@ -258,5 +258,18 @@
     "language": "fr",
     "publishDate": "1844-03-01T00:00:00.000Z",
     "uploadedAt": "2026-04-29T15:27:00.000Z"
+  },
+  {
+    "id": 21,
+    "title": "trdt",
+    "author": "rmdldlkend",
+    "description": "dndkdkdbebdb",
+    "coverImagePath": "",
+    "epubFilePath": "storage/21-Harry_Potter_and_the_Goblet_of_Fire_--_J__K__Rowling_Jim_Kay_--_Harry_Potter_4_London_Great_Britain_2015_--_Bloomsbury_--_isbn13_9781408865422_--_8efbf8e9f8b4592c7b0dbedec9c0ec05_--_Anna_s_Archive.epub",
+    "fileSizeBytes": 725408,
+    "isbn": "",
+    "language": "",
+    "publishDate": null,
+    "uploadedAt": "2026-05-06T12:04:37.803Z"
   }
 ]

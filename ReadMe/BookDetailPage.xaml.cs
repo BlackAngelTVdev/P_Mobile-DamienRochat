@@ -39,7 +39,7 @@ public partial class BookDetailPage : ContentPage
         BindingContext = this;
 
         _apiHelper = Application.Current?.Handler?.MauiContext?.Services.GetService<IApiHelper>()
-            ?? new ApiHelper(new HttpClient { BaseAddress = new Uri(ApiHelper.BaseUrl) });
+            ?? new ApiHelper(new HttpClient());
     }
 
     private async void OnReadClicked(object sender, EventArgs e)

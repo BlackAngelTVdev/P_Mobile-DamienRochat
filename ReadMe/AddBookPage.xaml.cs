@@ -14,10 +14,7 @@ namespace ReadMe
             InitializeComponent();
 
             _apiHelper = Application.Current?.Handler?.MauiContext?.Services.GetService<IApiHelper>()
-                ?? new ApiHelper(new HttpClient
-                {
-                    BaseAddress = new Uri(ApiHelper.BaseUrl)
-                });
+                ?? new ApiHelper(new HttpClient());
         }
 
         private async void OnPickFileClicked(object sender, EventArgs e)

@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Maui.Devices;
+using Microsoft.Maui.Storage;
 
 namespace ReadMe.Helpers;
 
@@ -17,9 +18,19 @@ public interface IApiHelper
 
 public class ApiHelper : IApiHelper
 {
-    public static string BaseUrl => DeviceInfo.Platform == DevicePlatform.Android
+    private const string BaseUrlPreferenceKey = "ApiBaseUrl";
+
+    public static string DefaultBaseUrl => DeviceInfo.Platform == DevicePlatform.Android
         ? "http://10.0.2.2:3000/"
         : "http://localhost:3000/";
+
+    public static string BaseUrl => NormalizeBaseUrl(
+        Preferences.Default.Get(BaseUrlPreferenceKey, DefaultBaseUrl));
+
+    public static void SetBaseUrl(string? baseUrl)
+    {
+        Preferences.Default.Set(BaseUrlPreferenceKey, NormalizeBaseUrl(baseUrl));
+    }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -35,12 +46,12 @@ public class ApiHelper : IApiHelper
 
     public async Task<T?> GetAsync<T>(string endpoint, CancellationToken cancellationToken = default)
     {
-        return await _httpClient.GetFromJsonAsync<T>(endpoint, JsonOptions, cancellationToken);
+        return await _httpClient.GetFromJsonAsync<T>(ResolveUri(endpoint), JsonOptions, cancellationToken);
     }
 
     public async Task<byte[]> GetBytesAsync(string endpoint, CancellationToken cancellationToken = default)
     {
-        return await _httpClient.GetByteArrayAsync(endpoint, cancellationToken);
+        return await _httpClient.GetByteArrayAsync(ResolveUri(endpoint), cancellationToken);
     }
 
     public async Task<TResponse?> PostAsync<TRequest, TResponse>(
@@ -49,7 +60,7 @@ public class ApiHelper : IApiHelper
         CancellationToken cancellationToken = default)
     {
         var content = CreateJsonContent(payload);
-        using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
+        using var response = await _httpClient.PostAsync(ResolveUri(endpoint), content, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<TResponse>(JsonOptions, cancellationToken);
@@ -60,7 +71,7 @@ public class ApiHelper : IApiHelper
         MultipartFormDataContent content,
         CancellationToken cancellationToken = default)
     {
-        using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
+        using var response = await _httpClient.PostAsync(ResolveUri(endpoint), content, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         if (response.Content.Headers.ContentLength == 0)
@@ -77,7 +88,7 @@ public class ApiHelper : IApiHelper
         CancellationToken cancellationToken = default)
     {
         var content = CreateJsonContent(payload);
-        using var response = await _httpClient.PutAsync(endpoint, content, cancellationToken);
+        using var response = await _httpClient.PutAsync(ResolveUri(endpoint), content, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<TResponse>(JsonOptions, cancellationToken);
@@ -85,8 +96,34 @@ public class ApiHelper : IApiHelper
 
     public async Task<bool> DeleteAsync(string endpoint, CancellationToken cancellationToken = default)
     {
-        using var response = await _httpClient.DeleteAsync(endpoint, cancellationToken);
+        using var response = await _httpClient.DeleteAsync(ResolveUri(endpoint), cancellationToken);
         return response.IsSuccessStatusCode;
+    }
+
+    private static Uri ResolveUri(string endpoint)
+    {
+        if (Uri.TryCreate(endpoint, UriKind.Absolute, out var absoluteUri))
+        {
+            return absoluteUri;
+        }
+
+        return new Uri(new Uri(BaseUrl), endpoint);
+    }
+
+    private static string NormalizeBaseUrl(string? baseUrl)
+    {
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            return DefaultBaseUrl;
+        }
+
+        if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var parsedUri))
+        {
+            return DefaultBaseUrl;
+        }
+
+        var normalized = parsedUri.ToString();
+        return normalized.EndsWith('/') ? normalized : normalized + "/";
     }
 
     private static StringContent CreateJsonContent<T>(T payload)

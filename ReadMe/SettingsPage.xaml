@@ -6,6 +6,31 @@
 
     <VerticalStackLayout Padding="20" Spacing="20">
 
+         <Label Text="Connexion API"
+             FontSize="22"
+             FontAttributes="Bold"
+             TextColor="{AppThemeBinding Light=#2D2144, Dark=#FFFFFF}" />
+
+         <Label Text="Adresse du backend utilisée par l'app. Sur un téléphone réel, mets l'IP locale du PC, par exemple http://192.168.1.20:3000/"
+             FontSize="13"
+             LineBreakMode="WordWrap"
+             TextColor="{AppThemeBinding Light=#5F5670, Dark=#CFCFCF}" />
+
+         <Entry x:Name="ApiUrlEntry"
+             Placeholder="http://192.168.1.20:3000/"
+             Keyboard="Url"
+             TextColor="{AppThemeBinding Light=#2D2144, Dark=#FFFFFF}"
+             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}" />
+
+         <HorizontalStackLayout Spacing="12">
+             <Button Text="Enregistrer"
+                  Clicked="OnSaveApiUrlClicked"
+                  HorizontalOptions="FillAndExpand" />
+             <Button Text="Réinitialiser"
+                  Clicked="OnResetApiUrlClicked"
+                  HorizontalOptions="FillAndExpand" />
+         </HorizontalStackLayout>
+
         <Label Text="Apparence"
                FontSize="22"
                FontAttributes="Bold"
