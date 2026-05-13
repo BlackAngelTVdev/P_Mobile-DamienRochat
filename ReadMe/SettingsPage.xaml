@@ -11,7 +11,7 @@
              FontAttributes="Bold"
              TextColor="{AppThemeBinding Light=#2D2144, Dark=#FFFFFF}" />
 
-         <Label Text="Adresse du backend utilisée par l'app. Sur un téléphone réel, mets l'IP locale du PC, par exemple http://192.168.1.20:3000/"
+         <Label Text="Adresse du backend utilisée par l'app. Sur émulateur Android, garde http://10.0.2.2:3000/. Sur un téléphone réel, utilise http://localhost:3000/ avec adb reverse, ou l'IP locale du PC, par exemple http://192.168.1.20:3000/"
              FontSize="13"
              LineBreakMode="WordWrap"
              TextColor="{AppThemeBinding Light=#5F5670, Dark=#CFCFCF}" />

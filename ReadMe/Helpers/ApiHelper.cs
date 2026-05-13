@@ -21,7 +21,9 @@ public class ApiHelper : IApiHelper
     private const string BaseUrlPreferenceKey = "ApiBaseUrl";
 
     public static string DefaultBaseUrl => DeviceInfo.Platform == DevicePlatform.Android
-        ? "http://10.0.2.2:3000/"
+        ? DeviceInfo.DeviceType == DeviceType.Virtual
+            ? "http://10.0.2.2:3000/"
+            : "http://localhost:3000/"
         : "http://localhost:3000/";
 
     public static string BaseUrl => NormalizeBaseUrl(

@@ -9,7 +9,7 @@ const { Readable } = require('stream');
 const { pipeline } = require('stream/promises');
 
 const app = express();
-const port = 3000;
+const port = 3002;
 const storageDir = path.join(__dirname, 'storage');
 const dbFile = path.join(storageDir, 'books.db');
 const upload = multer({ storage: multer.memoryStorage() });
@@ -435,7 +435,7 @@ app.get('/epub/2', (req, res) => {
 
 async function startServer() {
    await ensureStorage();
-   await resetDbFile();
+   // await resetDbFile();
    await initDb();
    await seedMissingBooks();
 

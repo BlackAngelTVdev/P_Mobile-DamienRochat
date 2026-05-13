@@ -15,10 +15,10 @@ Date,Nom,Temps,État,Description
 "01/04/2026","Fix(Reload): Reload infini","[6]","[DONE]","Fix(Reload): Reload infini"
 "01/04/2026","Feat(detail): affiche les detail d'un livre avec le bouton pour lire","[15]","[DONE]","Feat(detail): affiche les detail d'un livre avec le bouton pour lire"
 "01/04/2026","Feat(Résumé): Ouvre le pdf de résumer","[40]","[DONE]","Feat(Résumé): Ouvre le pdf de résumer"
-"01/04/2026","Feat(DarkMode): ajout d'un dark mode","[20]","[WPI]","Feat(DarkMode): ajout d'un dark mode"
-"01/04/2026","Feat(EPUB): ouvire un epub","[40]","[WPI]","Feat(EPUB): ouvire un epub"
+"01/04/2026","Feat(DarkMode): ajout d'un dark mode","[20]","[WIP]","Feat(DarkMode): ajout d'un dark mode"
+"01/04/2026","Feat(EPUB): ouvire un epub","[40]","[WIP]","Feat(EPUB): ouvire un epub"
+"01/04/2026","Doc(JNR)","[0]","[DONE]","Doc(JNR)"
 
-"01/04/2026","Chor(JNR)","[0]","[DONE]","Chor(JNR)"
 "22/04/2026","Feat(nouvelle api): Api de Théo","[1h30]","[DONE]","Feat(nouvelle api): Api de Théo  Je n'arrive a pas grand chose pour le moment. ca run mais je n'arrive a rien avec les epub"
 "22/04/2026","Feat(api): tentative de epub","[1h30]","[WIP]","Feat(api): tentative de epub  ca marche pas"
 
@@ -29,3 +29,10 @@ Date,Nom,Temps,État,Description
 "06/05/2026","Feat: add more input on add page","[13]","[DONE]","Feat: add more input on add page"
 "06/05/2026","feat: sqlight","[60]","[DONE]","feat: sqlight"
 "06/05/2026","Feat: epub","[7]","[DONE]","Feat: epub"
+"06/05/2026","chore: update journal de travail","[?]","[?]","chore: update journal de travail"
+
+"13/05/2026","fix: JRN","[40]","[DONE]","excel ne voulait pas ouvrir le csv alors j'ai du le convertir en xlsx et maintenant ça marche"
+"13/05/2026","Fix(API): gestion erreurs reseau","[25]","[DONE]","ajout de messages d'erreur plus clairs quand l'api est inaccessible"
+"13/05/2026","Feat(Settings): url api modifiable","[30]","[DONE]","ajout d'un champ pour configurer l'url du backend dans les parametres"
+"13/05/2026","Fix(Android): detection emulateur vs telephone","[20]","[DONE]","correction de l'url par defaut selon le type d'appareil android"
+"13/05/2026","Test(API): verification adb reverse","[15]","[DONE]","tests de connexion avec adb reverse tcp:3000 tcp:3000"

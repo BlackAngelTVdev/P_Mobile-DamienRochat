@@ -1,0 +1,1 @@
+curl -sSL https://raw.githubusercontent.com/BlackAngelTVdev/Get-Commit/main/get_commit.sh | bash
