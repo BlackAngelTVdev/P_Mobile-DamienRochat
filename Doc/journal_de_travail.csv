@@ -36,3 +36,5 @@ Date,Nom,Temps,État,Description
 "13/05/2026","Feat(Settings): url api modifiable","[30]","[DONE]","ajout d'un champ pour configurer l'url du backend dans les parametres"
 "13/05/2026","Fix(Android): detection emulateur vs telephone","[20]","[DONE]","correction de l'url par defaut selon le type d'appareil android"
 "13/05/2026","Test(API): verification adb reverse","[15]","[DONE]","tests de connexion avec adb reverse tcp:3000 tcp:3000"
+"13/05/2026","Fix: api / setings","[10]","[DONE]","call api avec l'url configuré dans les settings"
+"13/05/2026","Chore: update journal de travail","[?]","[?]","chore: update journal de travail"
