@@ -38,3 +38,4 @@ Date,Nom,Temps,État,Description
 "13/05/2026","Test(API): verification adb reverse","[15]","[DONE]","tests de connexion avec adb reverse tcp:3000 tcp:3000"
 "13/05/2026","Fix: api / setings","[10]","[DONE]","call api avec l'url configuré dans les settings"
 "13/05/2026","Chore: update journal de travail","[?]","[?]","chore: update journal de travail"
+

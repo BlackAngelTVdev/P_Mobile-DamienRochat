@@ -9,7 +9,7 @@ const { Readable } = require('stream');
 const { pipeline } = require('stream/promises');
 
 const app = express();
-const port = 3002;
+const port = 3000;
 const storageDir = path.join(__dirname, 'storage');
 const dbFile = path.join(storageDir, 'books.db');
 const upload = multer({ storage: multer.memoryStorage() });
